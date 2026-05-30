@@ -71,10 +71,10 @@ User → Login/Register → Browse & Rate Movies → User Preference Collection 
 | Component            | Technology           |
 | -------------------- | -------------------- |
 | Programming Language | Python               |
-| Frontend             | React.js / Streamlit |
+| Frontend             | React.js  |
 | Backend              | Flask / FastAPI      |
 | Machine Learning     | Scikit-learn         |
-| Database             | PostgreSQL / MongoDB |
+| Database             | PostgreSQL  |
 | Version Control      | GitHub               |
 | Collaboration        | MS Teams             |
 
@@ -93,7 +93,7 @@ Files:
 * ratings.csv
 * movies.csv
 * tags.csv
-* links.csv
+
 
 Dataset Statistics:
 
