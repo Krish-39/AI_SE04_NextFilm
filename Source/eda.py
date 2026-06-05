@@ -1,7 +1,8 @@
 import pandas as pd
 
 movies = pd.read_csv(
-    "Data/Raw/movies.dat",
+    "Data/Processed/movies_cleaned.csv"
+) 
     sep="::",
     engine="python",
     encoding="latin-1",

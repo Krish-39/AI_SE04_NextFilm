@@ -1,23 +1,22 @@
 import pandas as pd
 
 movies = pd.read_csv(
-    "Data/Raw/movies.dat",
-    sep="::",
-    engine="python",
-    encoding="latin-1",
-    names=["movieId", "title", "genres"]
+    "Data/Processed/movies_cleaned.csv"
 )
-
 
 
 from sklearn.feature_extraction.text import CountVectorizer
 
-vectorizer = CountVectorizer(tokenizer=lambda x: x.split('|'))
-
-genre_matrix = vectorizer.fit_transform(
-    movies["genres"]
+movies["content"] = (
+    movies["genres"] + " " +
+    movies["genre_count"].astype(str)
 )
 
+vectorizer = CountVectorizer()
+
+genre_matrix = vectorizer.fit_transform(
+    movies["content"]
+)
 
 
 from sklearn.metrics.pairwise import cosine_similarity
@@ -63,3 +62,4 @@ def recommend_movies(movie_title, n=5):
         )
 
 recommend_movies("Toy Story")
+
