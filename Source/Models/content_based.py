@@ -1,38 +1,34 @@
 import pandas as pd
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
-
-# Load Movies Dataset
 movies = pd.read_csv(
-    "../../Data/Raw/movies.dat",
-    sep="::",
-    engine="python",
-    encoding="latin-1",
-    names=["movieId", "title", "genres"]
+    "Data/Processed/movies_cleaned.csv"
 )
 
 
-# Convert genres into vectors
-vectorizer = TfidfVectorizer(
-    tokenizer=lambda x: x.split('|')
+from sklearn.feature_extraction.text import CountVectorizer
+
+movies["content"] = (
+    movies["genres"] + " " +
+    movies["genre_count"].astype(str)
 )
+
+vectorizer = CountVectorizer()
 
 genre_matrix = vectorizer.fit_transform(
-    movies["genres"]
+    movies["content"]
 )
 
 
-# Compute similarity matrix
+from sklearn.metrics.pairwise import cosine_similarity
+
 similarity_matrix = cosine_similarity(
     genre_matrix,
     genre_matrix
 )
 
 
-# Recommendation Function
-def get_content_recommendations(movie_title, n=5):
+
+def recommend_movies(movie_title, n=5):
 
     movie_title = movie_title.lower()
 
@@ -41,7 +37,8 @@ def get_content_recommendations(movie_title, n=5):
     ]
 
     if matches.empty:
-        return []
+        print("Movie not found.")
+        return
 
     idx = matches.index[0]
 
@@ -57,13 +54,12 @@ def get_content_recommendations(movie_title, n=5):
 
     recommendations = scores[1:n+1]
 
-    recommended_movies = []
+    print(f"\nRecommendations for {matches.iloc[0]['title']}:\n")
 
     for movie_index, score in recommendations:
-
-        recommended_movies.append(
+        print(
             movies.iloc[movie_index]["title"]
         )
 
-    return recommended_movies
+recommend_movies("Toy Story")
 
