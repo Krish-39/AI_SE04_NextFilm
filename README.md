@@ -175,14 +175,8 @@ npm install
 Create a `.env` file and add:
 
 ```env
-VITE_TMDB_API_KEY=your_tmdb_api_key
-
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
+VITE_TMDB_API_KEY=b35f346d1a85925edf88a92dc53c87d3
+VITE_GEMINI_API_KEY=AQ.Ab8RN6I01CWf-_YjTRbxm_T4R_JVLPNqMtq_8bqDRI3wIIpg2A
 ```
 
 ### Start Development Server
