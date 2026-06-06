@@ -1,512 +1,246 @@
-# DA120B_NextFlim
+# NextFilm – AI-Powered Movie Recommendation System
 
-## AI-Powered Movie Recommendation System
+## Overview
 
----
+NextFilm is an AI-powered movie recommendation platform designed to help users discover movies that match their interests. The system combines machine learning recommendation techniques with real-time movie metadata to deliver personalized suggestions and improve content discovery.
 
-## Project Overview
-
-NextFlim is an AI-powered movie recommendation system designed to solve the problem of information overload on modern entertainment platforms. The system uses machine learning techniques to analyze user preferences, ratings, genres, and viewing patterns to generate personalized movie recommendations.
-
-The primary goal of the project is to improve content discovery, enhance user experience, and reduce the time users spend searching for movies by providing accurate and personalized recommendations.
+The application allows users to browse movies, create accounts, manage watchlists, rate movies, and receive recommendations generated through content-based, collaborative, and hybrid recommendation models.
 
 ---
 
-# Problem Analysis
+## Features
 
-Streaming platforms such as Netflix, Amazon Prime, Disney+, and Hulu contain thousands of movies and TV shows. Users often struggle to find content that matches their interests due to the overwhelming number of available options.
+### User Features
 
-### Challenges
+* User Registration and Login
+* Personalized User Profiles
+* Movie Search and Discovery
+* Movie Details and Metadata
+* Watchlist Management
+* Personalized Movie Recommendations
+* Responsive User Interface
 
-* Information overload
-* Difficulty finding relevant content
-* Time-consuming browsing process
-* Generic recommendations that do not reflect user preferences
+### Recommendation Features
 
-### Proposed Solution
+* Content-Based Filtering
+* Collaborative Filtering
+* Hybrid Recommendation System
+* Genre-Based Similarity Analysis
+* User Rating-Based Recommendations
 
-Develop an intelligent movie recommendation system that:
+### External Integrations
 
-* Analyzes user preferences and behavior
-* Learns viewing patterns from ratings and interactions
-* Generates personalized movie recommendations
-* Improves decision-making and user satisfaction
-
----
-
-# Project Objectives
-
-## Primary Objectives
-
-* Analyze user preferences and behavior
-* Learn viewing patterns from user interactions
-* Generate personalized movie recommendations
-* Improve user experience and engagement
-
-## Technical Objectives
-
-* Implement recommendation algorithms
-* Build a scalable system architecture
-* Integrate external movie metadata sources
-* Develop an interactive user interface
-* Evaluate recommendation accuracy and performance
+* TMDb API for movie information
+* Firebase Authentication
+* Firebase Firestore Database
 
 ---
 
-# System Design
-
-## Workflow
-
-User → Login/Register → Browse Movies → Rate Movies → User Preference Collection → Backend Processing → Recommendation Engine → Personalized Recommendations → User Feedback
-
-## System Components
+## System Architecture
 
 ### Frontend
 
 * React.js
-* User interface for browsing movies and viewing recommendations
+* Vite
+* React Router
+* Framer Motion
 
-### Backend
+### Backend Services
 
-* Flask / FastAPI
-* API handling and business logic
+* Firebase Authentication
+* Firebase Firestore
 
-### Database
+### Machine Learning
 
-* PostgreSQL
-* Stores users, ratings, and movie metadata
-
-### Recommendation Engine
-
-* Content-Based Filtering
-* Collaborative Filtering
-* Hybrid Recommendation Model
+* Python
+* Scikit-learn
+* Pandas
+* NumPy
 
 ### External APIs
 
 * TMDb API
-* IMDb Dataset
 
 ---
 
-# Tools and Technologies
+## Recommendation Models
 
-| Component            | Technology      |
-| -------------------- | --------------- |
-| Programming Language | Python          |
-| Frontend             | React.js        |
-| Backend              | Flask / FastAPI |
-| Machine Learning     | Scikit-learn    |
-| Database             | PostgreSQL      |
-| Version Control      | GitHub          |
-| Collaboration        | MS Teams        |
+### Content-Based Filtering
+
+Recommends movies similar to those previously liked by a user by analyzing:
+
+* Genres
+* Movie metadata
+* Content similarity
+
+### Collaborative Filtering
+
+Generates recommendations by identifying users with similar rating patterns and preferences.
+
+### Hybrid Recommendation System
+
+Combines content-based and collaborative filtering methods to improve recommendation accuracy and diversity.
 
 ---
 
-# Dataset(s)
-
-## Primary Dataset
+## Dataset
 
 ### MovieLens Dataset
 
 Source: GroupLens Research
 
-Dataset Statistics:
-
-* 1,000,209 Ratings
-* 6,040 Users
-* 3,952 Movies
-* Rating Scale: 1–5
-
 Files Used:
 
-* ratings.csv
-* movies.csv
-* tags.csv
+* ratings.dat
+* movies.dat
+* users.dat
 
-### Why MovieLens?
+Dataset Statistics:
 
-The MovieLens dataset is one of the most widely used benchmark datasets for recommendation systems. It contains user ratings, movie metadata, and interaction history, making it ideal for collaborative and content-based recommendation approaches.
-
----
-
-## Additional Sources
-
-### IMDb Dataset
-
-Used for:
-
-* Cast information
-* Director information
-* Ratings
-* Runtime
-* Movie metadata enrichment
-
-### TMDb API
-
-Used for:
-
-* Movie posters
-* Popularity scores
-* Trailers
-* Keywords
-* Additional metadata
+* 1,000,000+ Ratings
+* 6,000+ Users
+* 3,900+ Movies
 
 ---
 
-# Repository Structure
+## Project Structure
 
 ```text
-DA120B_NextFlim/
-│
+NextFilm/
+
 ├── Data/
 │   ├── Raw/
+│   │   ├── movies.dat
+│   │   ├── ratings.dat
+│   │   └── users.dat
+│   │
 │   └── Processed/
+│       ├── movies_cleaned.csv
+│       ├── ratings_cleaned.csv
+│       └── users_cleaned.csv
 │
 ├── Source/
 │   ├── Frontend/
 │   ├── Backend/
 │   └── Models/
+│       ├── content_based.py
+│       ├── collaborative_filtering.py
+│       └── hybrid_model.py
 │
 ├── Documentation/
 │   ├── Reports/
 │   ├── Presentation/
-│   └── System_Design/
+│   └── Visualizations/
 │
-├── Results/
-│   ├── Screenshots/
-│   └── Outputs/
+├── dist/
 │
+├── src/
+│
+├── package.json
 ├── README.md
-│
-└── requirements.txt
+└── .env
 ```
 
 ---
 
-# Team Responsibilities
+## Data Processing Pipeline
 
-| Member   | Responsibility                                            |
-| -------- | --------------------------------------------------------- |
-| Member 1 | Team Lead, GitHub Management, Documentation, Presentation |
-| Member 2 | Recommendation Algorithms & Workflow Design               |
-| Member 3 | Dataset Collection & Data Preprocessing                   |
-| Member 4 | Frontend & Backend Planning                               |
-
----
-
-# Current Progress
-
-## Completed
-
-* Project topic finalized
-* Problem analysis completed
-* Requirement gathering completed
-* Team responsibilities assigned
-* Dataset research completed
-* Workflow diagram completed
-* System architecture research completed
-* GitHub repository structure created
-* Progress presentation prepared
-
-## In Progress
-
-* Recommendation algorithm research
-* Data preprocessing planning
-* Documentation updates
-* GitHub maintenance
+1. Dataset Collection
+2. Data Cleaning
+3. Missing Value Handling
+4. Feature Engineering
+5. Exploratory Data Analysis
+6. Recommendation Model Training
+7. Recommendation Generation
 
 ---
 
-# Daily Progress Logs
+## Installation
 
-### 27 May 2026
+### Clone Repository
 
-* Finalized project topic (NextFlim)
-* Conducted initial team discussion
-* Completed problem analysis
+```bash
+git clone <repository-url>
+cd NextFilm
+```
 
-### 28 May 2026
+### Install Frontend Dependencies
 
-* Assigned responsibilities to team members
-* Planned repository structure
-* Started dataset research
+```bash
+npm install
+```
 
-### 29 May 2026
+### Configure Environment Variables
 
-* Completed dataset collection and research
-* Completed workflow diagram
-* Completed system architecture planning
-* Started preparation of progress presentation
+Create a `.env` file and add:
 
-### 30 May 2026
+```env
+VITE_TMDB_API_KEY=your_tmdb_api_key
 
-* Uploaded MovieLens dataset to GitHub
-* Updated README documentation
-* Completed progress presentation slides
-* Added workflow diagram
-* Finalized project milestones and future work plan
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
 
----
+### Start Development Server
 
-# Future Work
+```bash
+npm run dev
+```
 
-## Phase 1: Data Preprocessing
+### Build Production Version
 
-* Clean and preprocess MovieLens dataset
-* Handle missing values and duplicates
-* Perform exploratory data analysis
-
-## Phase 2: Recommendation Engine Development
-
-* Implement Content-Based Filtering
-* Implement Collaborative Filtering
-* Develop Hybrid Recommendation System
-
-## Phase 3: Frontend & Backend Development
-
-* Build user interface using React.js
-* Develop APIs using Flask/FastAPI
-* Integrate recommendation engine
-
-## Phase 4: Model Evaluation & Testing
-
-* Evaluate recommendation accuracy
-* Measure performance metrics
-* Optimize recommendation quality
-
-## Phase 5: Final Deployment
-
-* Deploy the application
-* Conduct final testing
-* Prepare final report and presentation
+```bash
+npm run build
+```
 
 ---
 
-# Progress Presentation
+## Technologies Used
 
-**Presentation Date:** 30 May 2026
-
-### Topics Covered
-
-* Project Overview
-* Problem Analysis
-* Project Objectives
-* Dataset Research
-* System Design
-* Workflow Diagram
-* Tools & Technologies
-* Team Responsibilities
-* Current Progress
-* Future Work
+| Component        | Technology         |
+| ---------------- | ------------------ |
+| Frontend         | React.js           |
+| Build Tool       | Vite               |
+| Authentication   | Firebase Auth      |
+| Database         | Firebase Firestore |
+| Machine Learning | Scikit-learn       |
+| Data Processing  | Pandas, NumPy      |
+| Movie Metadata   | TMDb API           |
+| Routing          | React Router       |
+| Animations       | Framer Motion      |
+| Version Control  | Git & GitHub       |
 
 ---
 
-# Conclusion
-
-NextFlim aims to improve movie discovery by providing personalized recommendations through machine learning techniques. By combining user preferences, movie metadata, and recommendation algorithms, the system seeks to deliver a more engaging and efficient entertainment experience.
-* Build a scalable system architecture
-* Integrate external movie metadata sources
-* Develop an interactive user interface
-
-
-
-# System Design
-
-### Workflow
-
-User → Login/Register → Browse & Rate Movies → User Preference Collection → Backend Processing → Recommendation Engine → Personalized Recommendations → User Feedback
-
-### System Components
-
-1. Frontend (React.js / Streamlit)
-2. Backend (Flask / FastAPI)
-3. Database (PostgreSQL / MongoDB)
-4. Recommendation Engine
-5. External APIs (TMDb & IMDb)
-
-
-
-# Tools and Technologies
-
-| Component            | Technology           |
-| -------------------- | -------------------- |
-| Programming Language | Python               |
-| Frontend             | React.js  
-| Backend              | Flask / FastAPI      |
-| Machine Learning     | Scikit-learn         |
-| Database             | PostgreSQL  
-| Version Control      | GitHub               |
-| Collaboration        | MS Teams             |
-
-
-
-# Dataset(s)
-
-## Primary Dataset
-
-### MovieLens Dataset
-
-Source: GroupLens Research
-
-Files:
-
-* ratings.csv
-* movies.csv
-* tags.csv
-
-
-Dataset Statistics:
-
-* 1,000,209 Ratings
-* 6,040 Users
-* 3,952 Movies
-
-## Additional Sources
-
-### IMDb Dataset
-
-Used for:
-
-* Cast information
-* Director information
-* Ratings
-* Runtime
-
-### TMDb API
-
-Used for:
-
-* Movie posters
-* Popularity scores
-* Trailers
-* Keywords
-
-
-
-# Repository Structure
-
-DA120B_NextFlim/
-
-├── Data/
-
-│ ├── Raw/
-
-│ └── Processed/
-
-├── Source/
-
-│ ├── Frontend/
-
-│ ├── Backend/
-
-│ └── Models/
-
-├── Documentation/
-
-│ ├── Reports/
-
-│ ├── Presentation/
-
-│ └── System_Design/
-
-├── Results/
-
-│ ├── Screenshots/
-
-│ └── Outputs/
-
-├── README.md
-
-└── requirements.txt
-
-
-
-
-# Current Progress
-
-### Completed
-
-* Project topic finalized
-* Problem analysis completed
-* Team responsibilities assigned
-* Dataset research completed
-* Workflow diagram completed
-* System architecture research completed
-* Progress presentation prepared
-
-### In Progress
-
-* GitHub repository updates
-* Dataset collection
-* Recommendation algorithm planning
-* System documentation
-
-
-
-# Daily Progress Logs
-
-### 27 May 2026
-
-* Finalized project topic (NextFlim)
-* Conducted initial team discussion
-* Completed problem analysis
-
-### 28 May 2026
-
-* Assigned responsibilities to team members
-* Planned repository structure
-* Started dataset research
-
-### 29 May 2026
-
-* Completed dataset collection and research
-* Completed workflow diagram
-* Completed system architecture planning
-* Started preparation of progress presentation
-
-
-
-# Future Work
-
-### Phase 1
-
-* Download and preprocess MovieLens dataset
-
-### Phase 2
-
-* Implement collaborative filtering model
-
-### Phase 3
-
-* Implement content-based filtering model
-
-### Phase 4
-
-* Develop frontend and backend modules
-
-### Phase 5
-
-* Testing and evaluation
-
-### Phase 6
-
-* Final deployment and project completion
+## Future Improvements
+
+* Real-time recommendation updates
+* Recommendation explanation system
+* AI-powered movie assistant
+* Advanced user preference learning
+* Movie review sentiment analysis
+* Recommendation evaluation metrics
+* Cloud deployment
 
 ---
 
-# Progress Presentation
+## Contributors
 
-Presentation Date: 30 May 2026
+DA120B – NextFilm Project Team
 
-Topics Covered:
+* Project Management and Documentation
+* Dataset Collection and Preprocessing
+* Recommendation System Development
+* Frontend Development
+* Firebase Integration
+* Testing and Evaluation
 
-* Problem Analysis
-* Project Objectives
-* Dataset Research
-* System Design
-* Workflow Diagram
-* Team Responsibilities
-* Current Progress
-* Future Work
+---
 
+## License
+
+This project was developed for academic and educational purposes.
