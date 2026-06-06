@@ -175,8 +175,7 @@ npm install
 Create a `.env` file and add:
 
 ```env
-VITE_TMDB_API_KEY=b35f346d1a85925edf88a92dc53c87d3
-VITE_GEMINI_API_KEY=AQ.Ab8RN6I01CWf-_YjTRbxm_T4R_JVLPNqMtq_8bqDRI3wIIpg2A
+
 ```
 
 ### Start Development Server
