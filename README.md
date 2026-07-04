@@ -1,70 +1,94 @@
-#NextFilm – AI-Powered Movie Recommendation System
-# Overview
+# NextFlim
 
-NextFilm is an AI-powered movie recommendation platform designed to help users discover movies that match their interests through intelligent recommendation algorithms and real-time movie data.
+## AI-Powered Movie Recommendation Platform
 
-The application combines modern web development technologies with machine learning concepts to provide a personalized movie discovery experience. Users can browse movies, search for titles, manage watchlists, rate movies, and receive customized recommendations based on their preferences.
+---
 
-Movie information is retrieved using **The Movie Database (TMDb) API**, while user authentication and cloud storage are handled using **Firebase Authentication** and **Firebase Firestore**.
+## Table of Contents
 
-This project was developed as part of a university Software Engineering course to demonstrate the integration of Artificial Intelligence techniques into a full-stack web application.
+- About the Project
+- Features
+- Technology Stack
+- Recommendation System
+- AI Features
+- Dataset
+- System Architecture
+- Workflow
+- Project Structure
 
+---
 
-#  Project Objectives
+# About the Project
 
-- Build an intelligent movie recommendation platform.
-- Apply machine learning recommendation techniques.
-- Integrate real-time movie information using TMDb API.
-- Develop a responsive React web application.
-- Implement secure Firebase authentication.
-- Demonstrate Software Engineering best practices.
-- Provide an intuitive and engaging user experience.
+NextFlim is an AI-powered movie recommendation platform developed to help users discover movies and TV series based on their interests and viewing behavior.
 
+The project combines modern web technologies with recommendation algorithms to provide personalized movie suggestions. Users can search for movies, browse trending content, manage a watchlist, and receive recommendations based on their preferences.
 
-#  Features
+Movie information is retrieved from TMDb, while Firebase manages authentication and user data. Recommendation logic is implemented using a combination of content-based and collaborative approaches.
 
-##  User Features
+---
 
-- User Registration & Login
-- Secure Firebase Authentication
-- Personalized User Profiles
-- Responsive User Interface
-- Watchlist Management
-- Favorite Movies
-- Movie Ratings
-- Personalized Recommendations
+# Features
 
+## User Authentication
+
+- Email and Password Login
+- Google Sign-In
+- Firebase Authentication
+- Secure User Sessions
+
+---
 
 ## Movie Discovery
 
+- Browse Trending Movies
 - Browse Popular Movies
 - Search Movies
-- Movie Details
-- Genre Filtering
-- Trending Movies
-- Responsive Movie Cards
+- Search TV Series
+- View Movie Details
+- View Similar Movies
+- Watch Movie Trailers
+- Browse by Genre
 
+---
 
+## Recommendation System
 
-## Recommendation Features
+The recommendation engine combines multiple recommendation techniques to provide personalized suggestions.
 
 - Content-Based Filtering
 - Collaborative Filtering
-- Hybrid Recommendation System
-- Genre-Based Similarity Analysis
-- User Preference Learning
-- Rating-Based Recommendations
+- Hybrid Recommendation Model
 
+Recommendations are generated using user watchlists, viewing preferences, genres, and movie metadata.
 
+---
 
-##  External Integrations
+## AI Features
 
-- TMDb API
-- Firebase Authentication
-- Firebase Firestore Database
+The application includes Gemini AI to support natural language movie search.
 
+Example searches include:
 
-# System Architecture
+- Recommend action movies released after 2020
+- Movies similar to Interstellar
+- Emotional romantic movies
+- Family-friendly comedy movies
+
+---
+
+## Additional Features
+
+- Personal Watchlist
+- Responsive User Interface
+- Framer Motion Animations
+- Community Buzz
+- Where to Watch Information
+- Firebase Hosting
+
+---
+
+# Technology Stack
 
 ## Frontend
 
@@ -74,276 +98,517 @@ This project was developed as part of a university Software Engineering course t
 - Framer Motion
 - CSS3
 
+---
+
 ## Backend Services
 
 - Firebase Authentication
 - Firebase Firestore
 
-## Machine Learning
+---
 
-- Python
-- Scikit-learn
-- Pandas
-- NumPy
+## Recommendation Engine
+
+- JavaScript
+- Content-Based Filtering
+- Collaborative Filtering
+- Hybrid Recommendation Logic
+
+---
 
 ## External APIs
 
 - TMDb API
+- Gemini AI API
+- Reddit API
 
-#Recommendation Models
+---
+
+## Development Tools
+
+- Git
+- GitHub
+- Visual Studio Code
+
+---
+
+# Recommendation System
+
+NextFlim uses a hybrid recommendation approach to improve recommendation quality.
 
 ## Content-Based Filtering
 
-Recommends movies similar to those a user has previously enjoyed by analyzing:
+Content-based filtering recommends movies that are similar to those already liked by the user. It compares genres, keywords, cast members, and other movie characteristics to identify similar titles.
 
-- Genres
-- Keywords
-- Movie Metadata
-- Content Similarity
+Example:
+
+```
+Interstellar
+
+↓
+
+Gravity
+The Martian
+Arrival
+Contact
+```
+
+---
 
 ## Collaborative Filtering
 
-Generates recommendations by identifying users with similar interests and movie rating patterns.
+Collaborative filtering recommends movies by comparing the preferences of users with similar viewing behavior.
 
+If users with similar interests enjoyed certain movies, those movies are recommended to other users with matching preferences.
 
-## Hybrid Recommendation System
+---
 
-Combines Content-Based and Collaborative Filtering techniques to improve recommendation accuracy, diversity, and personalization.
+## Hybrid Recommendation
 
+The final recommendation system combines both content-based and collaborative filtering.
 
-# Recommendation Workflow
+This approach provides:
 
-1. User logs into the application.
-2. User searches or browses movies.
-3. User rates or saves favorite movies.
-4. User preferences are stored in Firebase.
-5. Recommendation algorithms analyze user behavior.
-6. Personalized movie recommendations are generated.
-7. Recommended movies are displayed to the user.
+- Better recommendation accuracy
+- More personalized suggestions
+- Reduced cold-start problems
+- Improved recommendation quality
 
+---
+
+# AI Features
+
+Gemini AI allows users to search using natural language instead of exact movie titles.
+
+For example:
+
+- Recommend psychological thriller movies
+- Best science fiction movies with space exploration
+- Funny family movies
+
+The AI interprets the user's request and suggests relevant content.
+
+---
 
 # Dataset
 
-## MovieLens Dataset
+Movie information is primarily retrieved using:
 
-**Source**
+- TMDb API
+- IMDb metadata
+- Firebase Firestore user preferences
 
-GroupLens Research
+The recommendation engine builds user profiles using:
 
-### Files Used
+- Watchlist
+- Search history
+- Favourite genres
+- Viewing preferences
 
-- ratings.dat
-- movies.dat
-- users.dat
+---
 
-### Dataset Statistics
+# System Architecture
 
-- 1,000,000+ Ratings
-- 6,000+ Users
-- 3,900+ Movies
-
-
-#  Project Structure
-
-```text
-NextFilm/
-│
-├── Data/
-│   ├── Raw/
-│   │   ├── movies.dat
-│   │   ├── ratings.dat
-│   │   └── users.dat
-│   │
-│   └── Processed/
-│       ├── movies_cleaned.csv
-│       ├── ratings_cleaned.csv
-│       └── users_cleaned.csv
-│
-├── Source/
-│   ├── Frontend/
-│   ├── Backend/
-│   └── Models/
-│       ├── content_based.py
-│       ├── collaborative_filtering.py
-│       └── hybrid_model.py
-│
-├── Documentation/
-│   ├── Reports/
-│   ├── Presentation/
-│   └── Visualizations/
-│
-├── dist/
-├── public/
-├── src/
-├── package.json
-├── README.md
-├── .env
-└── vite.config.js
+```
+                User
+                  │
+                  ▼
+          React Frontend
+                  │
+                  ▼
+        Firebase Authentication
+                  │
+                  ▼
+      Recommendation Engine
+        │       │        │
+        ▼       ▼        ▼
+   TMDb API  Firestore  Gemini AI
+                  │
+                  ▼
+     Personalized Recommendations
 ```
 
+---
 
+# Workflow
 
-#  Data Processing Pipeline
+```
+User Login
 
-1. Dataset Collection
-2. Data Cleaning
-3. Missing Value Handling
-4. Feature Engineering
-5. Exploratory Data Analysis
-6. Recommendation Model Training
-7. Recommendation Generation
+↓
 
+Browse Movies
 
+↓
+
+Search Movies / Manage Watchlist
+
+↓
+
+Recommendation Engine
+
+↓
+
+Content-Based Filtering
+
++
+
+Collaborative Filtering
+
+↓
+
+Hybrid Recommendation
+
+↓
+
+Personalized Movie Recommendations
+
+↓
+
+User Feedback
+```
+
+---
+
+# Project Structure
+
+```
+NextFlim/
+
+├── public/
+
+├── src/
+│
+├── components/
+│
+├── pages/
+│
+├── services/
+│
+├── utils/
+│
+├── assets/
+│
+├── firebase.js
+│
+├── recommendationEngine.js
+│
+├── Documentation/
+│
+├── Results/
+│
+└── README.md
+```
+
+---
+
+# Screenshots
+
+Application screenshots are available in the `Results` directory.
+
+The project includes screenshots of:
+
+- Login Page
+- Home Page
+- Search Page
+- Movie Details
+- Watchlist
+- AI Search
+- Recommendation Page
 
 # Installation
 
-## Clone the Repository
+## Prerequisites
+
+Before running the project, ensure the following software is installed:
+
+- Node.js (v18 or later)
+- npm
+- Git
+
+Clone the repository:
 
 ```bash
-git clone https://github.com/Krish-39/AI_SE04_NextFilm.git
-
-cd AI_SE04_NextFilm
+git clone https://github.com/your-username/NextFlim.git
 ```
 
+Navigate to the project folder:
 
-## Install Dependencies
+```bash
+cd NextFlim
+```
+
+Install the required dependencies:
 
 ```bash
 npm install
 ```
 
+---
 
-## Configure Environment Variables
+# Environment Variables
 
-Create a `.env` file inside the project root.
+Create a `.env` file in the project root and add the following variables:
 
 ```env
 VITE_FIREBASE_API_KEY=
-
 VITE_FIREBASE_AUTH_DOMAIN=
-
 VITE_FIREBASE_PROJECT_ID=
-
 VITE_FIREBASE_STORAGE_BUCKET=
-
 VITE_FIREBASE_MESSAGING_SENDER_ID=
-
 VITE_FIREBASE_APP_ID=
 
 VITE_TMDB_API_KEY=
+
+VITE_GEMINI_API_KEY=
+
+VITE_REDDIT_CLIENT_ID=
+VITE_REDDIT_CLIENT_SECRET=
 ```
 
-## Start Development Server
+Replace each value with your own API keys.
+
+---
+
+# Firebase Configuration
+
+The project uses Firebase for authentication and Firestore for storing user information.
+
+Firebase services used:
+
+- Authentication
+- Firestore Database
+- Hosting
+
+Authentication methods:
+
+- Email and Password
+- Google Sign-In
+
+---
+
+# TMDb API
+
+TMDb is used to retrieve movie information including:
+
+- Movie titles
+- Posters
+- Genres
+- Release dates
+- Cast
+- Ratings
+- Similar movies
+- Trending movies
+
+Create a free TMDb account and generate an API key.
+
+Add the key to the `.env` file.
+
+---
+
+# Gemini AI
+
+Gemini AI provides natural language search functionality.
+
+Users can search using conversational prompts instead of exact movie titles.
+
+Examples:
+
+- Recommend science fiction movies
+- Show me comedy movies released after 2015
+- Movies similar to Inception
+
+Add your Gemini API key to the `.env` file.
+
+---
+
+# Reddit Integration
+
+The application retrieves community discussions related to movies.
+
+Examples include:
+
+- Trending discussions
+- Popular opinions
+- Community recommendations
+
+This feature helps users discover movies based on public discussions.
+
+---
+
+# Running the Project
+
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
+The application will be available at:
 
-## Build Production Version
+```
+http://localhost:5173
+```
+
+To create a production build:
 
 ```bash
 npm run build
 ```
 
+To preview the production build:
 
-# Technologies Used
+```bash
+npm run preview
+```
 
-| Category | Technology |
-|-----------|------------|
-| Frontend | React.js |
-| Build Tool | Vite |
-| Styling | CSS3, Framer Motion |
-| Authentication | Firebase Authentication |
-| Database | Firebase Firestore |
-| Machine Learning | Python |
-| AI Libraries | Scikit-learn |
-| Data Processing | Pandas, NumPy |
-| Movie Data | TMDb API |
-| Routing | React Router |
-| Version Control | Git & GitHub |
+---
 
+# Project Structure
 
-#  Screenshots
+```
+NextFlim/
 
-The following screenshots will be added after the final release.
+├── public/
 
-- Home Page
-- Login Page
-- Movie Search
-- Movie Details
-- Recommendation Page
-- User Profile
-- Watchlist
+├── src/
+│
+├── assets/
+│
+├── components/
+│
+├── pages/
+│
+├── services/
+│
+├── utils/
+│
+├── hooks/
+│
+├── context/
+│
+├── firebase.js
+│
+├── recommendationEngine.js
+│
+└── main.jsx
 
+├── Documentation/
+
+├── Results/
+
+├── package.json
+
+├── vite.config.js
+
+└── README.md
+```
+
+---
+
+# Recommendation Process
+
+The recommendation process follows these steps:
+
+1. User logs into the application.
+2. User searches for or browses movies.
+3. User saves movies to their watchlist.
+4. User preferences are stored in Firebase Firestore.
+5. Movie metadata is retrieved from TMDb.
+6. The recommendation engine analyses user preferences.
+7. Personalized movie recommendations are generated.
+8. Recommendations are displayed to the user.
+
+---
+
+# Current Project Status
+
+Completed:
+
+- User authentication
+- Google Sign-In
+- Movie search
+- Trending movies
+- Movie details
+- Similar movies
+- Watchlist functionality
+- Recommendation engine
+- Gemini AI integration
+- Reddit community integration
+- Responsive user interface
+- Firebase Hosting deployment
+
+Currently being improved:
+
+- Recommendation accuracy
+- User preference learning
+- Performance optimisation
+- Additional filtering options
+
+---
 
 # Future Improvements
 
-- AI-powered chatbot assistant
-- Recommendation explanation system
-- Real-time recommendation updates
-- Movie review sentiment analysis
-- Advanced user preference learning
-- Recommendation evaluation metrics
-- Cloud deployment
-- Docker support
-- Social movie sharing
-- Dark mode
+Possible future enhancements include:
+
+- Movie rating system
+- User reviews and comments
+- Social features
+- Multiple recommendation models
+- Recommendation history
+- Offline support
+- Dark and light themes
+- Multi-language support
 - Mobile application
 
+---
 
-# 🗺️ Roadmap
+# Challenges Faced
 
-- ✅ User Authentication
-- ✅ Firebase Integration
-- ✅ Movie Search
-- ✅ TMDb API Integration
-- ✅ Responsive Interface
-- ⏳ Content-Based Recommendation
-- ⏳ Collaborative Filtering
-- ⏳ Hybrid Recommendation
-- ⏳ Cloud Deployment
-- ⏳ Docker Containerization
+During the project, several challenges were encountered:
 
+- Selecting an appropriate recommendation approach
+- Integrating multiple external APIs
+- Managing user authentication securely
+- Maintaining application performance
+- Handling asynchronous API requests
+- Organising project structure as the application grew
 
+These challenges were addressed through modular development, testing, and continuous improvements.
+
+---
+
+# Contributors
+
+| Name | Role |
+|------|------|
+| Krish Ahir | Project Lead, Documentation, System Design, GitHub Management |
+| Team Member | Frontend Development |
+| Team Member | Recommendation Engine |
+| Team Member | Research and Testing |
+
+Update this table with the names of all team members.
+
+---
 
 # Acknowledgements
 
-This project makes use of the following technologies and datasets:
+This project makes use of the following resources:
 
 - TMDb API
 - Firebase
-- MovieLens Dataset
-- GroupLens Research
 - React
 - Vite
-- Scikit-learn
-- Pandas
-- NumPy
+- Framer Motion
+- Google Gemini AI
+- Reddit API
 
+We would like to acknowledge these platforms and their documentation for supporting the development of this project.
 
+---
 
-#Contributors
-## Krish Ahir
-## Ajin Rajeev
-## kirtika Chaudhary
-## Harkaran 
+# License
 
-### Responsibilities
+This project was developed for academic purposes as part of the DA120B course.
 
-- Project Planning
-- Frontend Development
-- Firebase Integration
-- Recommendation System Research
-- Documentation
-- Testing & Evaluation
-
-
-# 📄 License
-
-This project was developed for academic and educational purposes as part of a university Software Engineering course.
-
-It is intended solely for learning, research, and demonstration purposes.
-
-
-If you found this project helpful, consider giving it a star on GitHub!
+It is intended for educational use only.  
