@@ -64,22 +64,42 @@ export default function Footer() {
       >
         {/* Logo */}
         <div>
-          <h2
+          <div
             style={{
-              color: "white",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
               marginBottom: "15px",
             }}
           >
-            🎬 NextFilm{" "}
-            <span
+            <img
+              src="/Logo.png"
+              alt="NextFilm logo"
               style={{
-                color: "#00E5A8",
+                width: "64px",
+                height: "64px",
+                borderRadius: "16px",
+                objectFit: "cover",
+                display: "block",
+              }}
+            />
+
+            <h2
+              style={{
+                color: "white",
+                margin: 0,
               }}
             >
-              AI
-            </span>
-          </h2>
-
+              NextFilm{" "}
+              <span
+                style={{
+                  color: "#00E5A8",
+                }}
+              >
+                AI
+              </span>
+            </h2>
+          </div>
           <p
             style={{
               lineHeight: "1.8",

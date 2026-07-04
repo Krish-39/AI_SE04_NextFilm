@@ -107,13 +107,15 @@ export default function Navbar() {
             textDecoration: "none",
           }}
         >
-          <div
+          <img
+            src="/Logo.png"
+            alt="NextFilm logo"
             style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "12px",
-              background:
-                "linear-gradient(135deg,#00E5A8,#7C3AED)",
+              width: "72px",
+              height: "72px",
+              borderRadius: "18px",
+              objectFit: "cover",
+              display: "block",
             }}
           />
 
