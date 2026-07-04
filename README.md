@@ -605,7 +605,6 @@ This project makes use of the following resources:
 
 We would like to acknowledge these platforms and their documentation for supporting the development of this project.
 
----
 
 # License
 
