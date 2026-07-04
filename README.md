@@ -324,11 +324,10 @@ This project makes use of the following technologies and datasets:
 
 
 #Contributors
-##Krish Ahir
-##Ajin Rajeev
-##kirtika Chaudhary
+## Krish Ahir
+## Ajin Rajeev
+## kirtika Chaudhary
 ## Harkaran 
-Software Engineering Students
 
 ### Responsibilities
 
