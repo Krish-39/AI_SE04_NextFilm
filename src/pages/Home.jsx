@@ -54,15 +54,10 @@ export default function Home() {
 
       // AI Recommendation Search
       else {
-        const aiResponse =
+        const titles =
           await getMovieRecommendations(query);
 
-        console.log(
-          "AI Response:",
-          aiResponse
-        );
-
-        if (!aiResponse) {
+        if (!titles.length) {
           alert(
             "AI could not generate recommendations."
           );
@@ -70,14 +65,6 @@ export default function Home() {
           setLoading(false);
           return;
         }
-
-        const titles = aiResponse
-          .split(",")
-          .map((movie) =>
-            movie.trim()
-          )
-          .filter(Boolean)
-          .slice(0, 5);
 
         for (const title of titles) {
           const res = await fetch(

@@ -1,8 +1,8 @@
 import pandas as pd
+from paths import DOCS_DIR, RAW_DIR
 
 movies = pd.read_csv(
-    "Data/Processed/movies_cleaned.csv"
-) 
+    RAW_DIR / "movies.dat",
     sep="::",
     engine="python",
     encoding="latin-1",
@@ -10,14 +10,14 @@ movies = pd.read_csv(
 )
 
 ratings = pd.read_csv(
-    "Data/Raw/ratings.dat",
+    RAW_DIR / "ratings.dat",
     sep="::",
     engine="python",
     names=["userId", "movieId", "rating", "timestamp"]
 )
 
 users = pd.read_csv(
-    "Data/Raw/users.dat",
+    RAW_DIR / "users.dat",
     sep="::",
     engine="python",
     names=["userId", "gender", "age", "occupation", "zip"]
@@ -59,7 +59,7 @@ plt.title("Rating Distribution")
 plt.xlabel("Rating")
 plt.ylabel("Number of Ratings")
 
-plt.savefig("Documentation/rating_distribution.png")
+plt.savefig(DOCS_DIR / "rating_distribution.png")
 plt.close()
 
 
@@ -74,7 +74,7 @@ plt.title("Genre Distribution")
 plt.xlabel("Genre")
 plt.ylabel("Count")
 
-plt.savefig("Documentation/genre_distribution.png")
+plt.savefig(DOCS_DIR / "genre_distribution.png")
 plt.close()
 
 movie_counts = ratings.groupby("movieId").size()
@@ -90,7 +90,7 @@ plt.title("Top 10 Most Rated Movies")
 plt.xlabel("Movie ID")
 plt.ylabel("Number of Ratings")
 
-plt.savefig("Documentation/top_movies.png")
+plt.savefig(DOCS_DIR / "top_movies.png")
 plt.close()
 
 

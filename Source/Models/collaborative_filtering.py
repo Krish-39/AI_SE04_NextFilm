@@ -2,10 +2,12 @@ import pandas as pd
 
 from sklearn.metrics.pairwise import cosine_similarity
 
+from paths import RAW_DIR
+
 
 # Load Ratings Dataset
 ratings = pd.read_csv(
-    "../../Data/Raw/ratings.dat",
+    RAW_DIR / "ratings.dat",
     sep="::",
     engine="python",
     encoding="latin-1",
@@ -20,7 +22,7 @@ ratings = pd.read_csv(
 
 # Load Movies Dataset
 movies = pd.read_csv(
-    "../../Data/Raw/movies.dat",
+    RAW_DIR / "movies.dat",
     sep="::",
     engine="python",
     encoding="latin-1",
@@ -136,7 +138,7 @@ def get_item_based_recommendations(
 
     movie_match = movies[
         movies["title"].str.lower().str.contains(
-            movie_title.lower()
+            movie_title.lower(), regex=False
         )
     ]
 
@@ -183,25 +185,37 @@ def get_collaborative_recommendations(
             n=5
         )
 
-    final_recommendations = list(
-        set(
-            user_based +
-            item_based
-        )
-    )
+    final_recommendations = merge_ranked(user_based, item_based)[:n]
 
     print("\nCollaborative Filtering Recommendations:\n")
 
-    for movie in final_recommendations[:n]:
+    for movie in final_recommendations:
 
         print(movie)
 
     return final_recommendations
 
 
-# Example
-get_collaborative_recommendations(
-    user_id=1,
-    movie_title="Toy Story"
-)
+def merge_ranked(*ranked_lists):
+    """Interleave ranked lists, keeping each list's order and dropping repeats.
 
+    A plain set() would lose the ranking, so results came out in random order.
+    """
+
+    merged = []
+    seen = set()
+
+    for position in range(max((len(lst) for lst in ranked_lists), default=0)):
+        for ranked in ranked_lists:
+            if position < len(ranked) and ranked[position] not in seen:
+                seen.add(ranked[position])
+                merged.append(ranked[position])
+
+    return merged
+
+
+if __name__ == "__main__":
+    get_collaborative_recommendations(
+        user_id=1,
+        movie_title="Toy Story"
+    )

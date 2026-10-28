@@ -57,7 +57,7 @@ export default function Login() {
       );
 
       navigate("/");
-    } catch (err) {
+    } catch {
       setError(
         "Invalid email or password."
       );
@@ -79,7 +79,7 @@ export default function Login() {
         );
 
         navigate("/");
-      } catch (err) {
+      } catch {
         setError(
           "Google login failed."
         );
@@ -106,7 +106,7 @@ export default function Login() {
         setMessage(
           "Password reset email sent successfully."
         );
-      } catch (err) {
+      } catch {
         setError(
           "Unable to send reset email."
         );
