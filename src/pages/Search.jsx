@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { SearchX, Sparkles } from "lucide-react";
+import { ExternalLink, SearchX, Sparkles } from "lucide-react";
 
 import PosterGrid from "../components/PosterGrid";
+import RedditIcon from "../components/RedditIcon";
 import StateMessage from "../components/StateMessage";
-import { getMovieRecommendations } from "../services/gemini";
+import Tabs from "../components/Tabs";
+import { getRecommendations } from "../services/gemini";
+import { mergePicks, withTimeout } from "../lib/merge";
+import { communityThreads } from "../lib/reddit";
 import { useAsync } from "../lib/useAsync";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { tmdb } from "../lib/tmdb";
@@ -13,28 +17,54 @@ import "./Search.css";
 // Short queries are probably titles; longer ones read like descriptions.
 const looksLikeDescription = (q) => q.trim().split(/\s+/).length > 3;
 
+const resolveTitles = (titles) => Promise.all(titles.map((t) => tmdb.findTitle(t).catch(() => null)));
+
 async function aiSearch(q) {
-  const titles = await getMovieRecommendations(q);
-  const found = await Promise.all(titles.map((t) => tmdb.findMovie(t).catch(() => null)));
-  return found.filter(Boolean);
+  // Reddit is a bonus: give it a few seconds, then carry on without it.
+  const threads = await withTimeout(communityThreads(q), 3500, []);
+  const { titles, community } = await getRecommendations(
+    q,
+    threads.map((t) => t.title),
+  );
+  const [picks, communityPicks] = await Promise.all([resolveTitles(titles), resolveTitles(community)]);
+  return { items: mergePicks(picks, communityPicks), threads: threads.slice(0, 3) };
+}
+
+async function titleSearch(q) {
+  return { items: await tmdb.search(q), threads: [] };
 }
 
 export default function Search() {
   const [params, setParams] = useSearchParams();
   const q = (params.get("q") || "").trim();
   const ai = params.get("ai") === "1" || (params.get("ai") !== "0" && looksLikeDescription(q));
+  const type = ["movie", "tv"].includes(params.get("type")) ? params.get("type") : "all";
   const [attempt, setAttempt] = useState(0);
   useDocumentTitle(q ? `“${q}”` : "Search");
 
   const { data, error, loading } = useAsync(
-    () => (q ? (ai ? aiSearch(q) : tmdb.search(q)) : Promise.resolve([])),
+    () => (q ? (ai ? aiSearch(q) : titleSearch(q)) : Promise.resolve({ items: [], threads: [] })),
     [q, ai, attempt],
   );
 
+  const items = useMemo(() => data?.items || [], [data]);
+  const shown = type === "all" ? items : items.filter((i) => i.media_type === type);
+  const counts = {
+    all: items.length,
+    movie: items.filter((i) => i.media_type !== "tv").length,
+    tv: items.filter((i) => i.media_type === "tv").length,
+  };
+
+  const update = (next) => {
+    const merged = { q, ai: ai ? "1" : "0", type, ...next };
+    const out = new URLSearchParams({ q: merged.q, ai: merged.ai });
+    if (merged.type !== "all") out.set("type", merged.type);
+    setParams(out);
+  };
+
   const run = (text, mode) => {
     const next = text.trim();
-    if (!next) return;
-    setParams({ q: next, ai: mode });
+    if (next) update({ q: next, ai: mode, type: "all" });
   };
 
   return (
@@ -55,6 +85,29 @@ export default function Search() {
           <button type="button" className="btn btn-ghost" onClick={() => run(q, ai ? "0" : "1")}>
             {ai ? "Search titles instead" : "Ask NextFilm AI instead"}
           </button>
+        </div>
+      )}
+
+      {q && !error && !loading && items.length > 0 && (
+        <div className="search-page__filters">
+          <Tabs
+            label="Show"
+            value={type}
+            onChange={(v) => update({ type: v })}
+            options={[
+              ["all", "All", counts.all],
+              ["movie", "Films", counts.movie],
+              ["tv", "Series", counts.tv],
+            ]}
+          />
+          {ai && items.some((i) => i.fromReddit) && (
+            <p className="search-page__legend">
+              <span className="poster-badge poster-badge--reddit">
+                <RedditIcon size={11} /> Reddit
+              </span>
+              also recommended by the Reddit community
+            </p>
+          )}
         </div>
       )}
 
@@ -86,22 +139,66 @@ export default function Search() {
         </StateMessage>
       )}
 
-      {q && !error && (loading || data?.length > 0) && (
-        <PosterGrid items={data || []} loading={loading} count={ai ? 5 : 12} />
+      {q && !error && (loading || shown.length > 0) && (
+        <PosterGrid
+          items={shown}
+          loading={loading}
+          count={ai ? 6 : 12}
+          showKind
+          renderBadge={(item) =>
+            item.fromReddit && (
+              <span className="poster-badge poster-badge--reddit">
+                <RedditIcon size={11} /> Reddit
+              </span>
+            )
+          }
+        />
       )}
 
-      {q && !error && !loading && data?.length === 0 && (
+      {q && !error && !loading && items.length > 0 && shown.length === 0 && (
+        <StateMessage
+          title={`No ${type === "tv" ? "series" : "films"} in these results`}
+          action={
+            <button type="button" className="btn btn-secondary" onClick={() => update({ type: "all" })}>
+              Show all results
+            </button>
+          }
+        />
+      )}
+
+      {q && !error && !loading && items.length === 0 && (
         <StateMessage
           icon={SearchX}
           title="Nothing matched"
           action={
-            <Link to="/" className="btn btn-secondary">
-              Browse what’s trending
+            <Link to="/browse" className="btn btn-secondary">
+              Browse with filters
             </Link>
           }
         >
           Try a different spelling, or describe it instead: “a heist film set in Paris”.
         </StateMessage>
+      )}
+
+      {ai && data?.threads?.length > 0 && (
+        <section className="threads" aria-labelledby="threads-title">
+          <h2 className="threads__title" id="threads-title">
+            <RedditIcon size={16} /> Community threads we read
+          </h2>
+          <ul>
+            {data.threads.map((t) => (
+              <li key={t.id}>
+                <a href={t.permalink} target="_blank" rel="noreferrer">
+                  <span className="threads__post">{t.title}</span>
+                  <span className="threads__meta">
+                    r/{t.subreddit} · {t.score.toLocaleString()} upvotes · {t.comments.toLocaleString()} comments
+                  </span>
+                  <ExternalLink size={14} aria-hidden="true" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </main>
   );
