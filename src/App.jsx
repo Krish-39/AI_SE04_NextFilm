@@ -1,48 +1,56 @@
-import { Routes, Route } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import SiteFooter from "./components/SiteFooter";
+import SiteHeader from "./components/SiteHeader";
 import Home from "./pages/Home";
-import WatchlistPage from "./pages/WatchlistPage";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+
+const Title = lazy(() => import("./pages/Title"));
+const Search = lazy(() => import("./pages/Search"));
+const Watchlist = lazy(() => import("./pages/Watchlist"));
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+const BARE = ["/login", "/signup"];
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 export default function App() {
+  const { pathname } = useLocation();
+  const bare = BARE.includes(pathname);
+
   return (
-    <div
-      style={{
-        background: "#050816",
-        minHeight: "100vh",
-      }}
-    >
-      <Navbar />
-
-      <Routes>
-        <Route
-          path="/"
-          element={<Home />}
-        />
-
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-        <Route
-          path="/signup"
-          element={<Signup />}
-        />
-
-        <Route
-          path="/watchlist"
-          element={
-            <ProtectedRoute>
-              <WatchlistPage />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </div>
+    <>
+      <ScrollToTop />
+      {!bare && <SiteHeader />}
+      <Suspense fallback={<div className="page" aria-busy="true" />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/movie/:id" element={<Title kind="movie" />} />
+          <Route path="/tv/:id" element={<Title kind="tv" />} />
+          <Route path="/search" element={<Search />} />
+          <Route
+            path="/watchlist"
+            element={
+              <ProtectedRoute>
+                <Watchlist />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+      {!bare && <SiteFooter />}
+    </>
   );
 }

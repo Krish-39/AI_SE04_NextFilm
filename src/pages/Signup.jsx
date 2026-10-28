@@ -1,121 +1,119 @@
 import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword, signInWithPopup, updateProfile } from "firebase/auth";
 
-import {
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
-
-import { auth } from "../firebase";
-
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import AuthLayout from "../components/AuthLayout";
+import { authMessage } from "../lib/authMessage";
+import GoogleButton from "../components/GoogleButton";
+import { auth, googleProvider } from "../firebase";
+import { useToast } from "../lib/contexts";
+import { useDocumentTitle } from "../lib/useDocumentTitle";
 
 export default function Signup() {
+  useDocumentTitle("Create account");
   const navigate = useNavigate();
+  const location = useLocation();
+  const toast = useToast();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const next = location.state?.from || "/";
 
-  const [email, setEmail] =
-    useState("");
+  const done = () => {
+    toast("Account created. Start saving titles to your watchlist.", "success");
+    navigate(next, { replace: true });
+  };
 
-  const [password, setPassword] =
-    useState("");
-
-  const handleSignup = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-
+    setBusy(true);
+    setError(null);
     try {
-      await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const { user } = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      if (name.trim()) await updateProfile(user, { displayName: name.trim() });
+      done();
+    } catch (err) {
+      setError(authMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
 
-      navigate("/");
-    } catch (error) {
-      alert(error.message);
+  const google = async () => {
+    setError(null);
+    try {
+      await signInWithPopup(auth, googleProvider);
+      done();
+    } catch (err) {
+      setError(authMessage(err));
     }
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        color: "white",
-      }}
+    <AuthLayout
+      title="Create account"
+      subtitle="Save films and series to one watchlist, on every device."
+      footer={
+        <>
+          Already have an account? <Link to="/login" state={location.state}>Sign in</Link>
+        </>
+      }
     >
-      <form
-        onSubmit={handleSignup}
-        style={{
-          width: "400px",
-          background: "#0B1120",
-          padding: "40px",
-          borderRadius: "20px",
-        }}
-      >
-        <h1>Create Account</h1>
-
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
-          style={inputStyle}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-          style={inputStyle}
-        />
-
-        <button
-          type="submit"
-          style={buttonStyle}
-        >
-          Sign Up
+      <form className="auth__form" onSubmit={submit} noValidate>
+        {error && (
+          <p className="auth__alert auth__alert--error" role="alert">
+            {error}
+          </p>
+        )}
+        <div className="field">
+          <label htmlFor="name">
+            Name <span className="auth__hint">(optional)</span>
+          </label>
+          <input
+            id="name"
+            className="input"
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            className="input"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            className="input"
+            type="password"
+            autoComplete="new-password"
+            minLength={6}
+            aria-describedby="password-hint"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <p id="password-hint" className="auth__hint">
+            At least 6 characters.
+          </p>
+        </div>
+        <button type="submit" className="btn btn-primary" disabled={busy || !email || password.length < 6}>
+          {busy ? "Creating account…" : "Create account"}
         </button>
-
-        <p
-          style={{
-            marginTop: "20px",
-          }}
-        >
-          Already have an account?{" "}
-          <Link to="/login">
-            Login
-          </Link>
-        </p>
+        <p className="auth__divider">or</p>
+        <GoogleButton onClick={google} />
       </form>
-    </div>
+    </AuthLayout>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  padding: "15px",
-  marginTop: "15px",
-  borderRadius: "10px",
-  border: "none",
-};
-
-const buttonStyle = {
-  width: "100%",
-  marginTop: "20px",
-  padding: "15px",
-  borderRadius: "10px",
-  border: "none",
-  background:
-    "linear-gradient(135deg,#00E5A8,#7C3AED)",
-  color: "white",
-  fontWeight: "bold",
-  cursor: "pointer",
-};

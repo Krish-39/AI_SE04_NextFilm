@@ -1,17 +1,14 @@
-import { getFunctions, httpsCallable } from "firebase/functions";
-
-import { app } from "../firebase";
-
 // The Gemini key lives only in the `recommendMovies` Cloud Function
 // (functions/index.js). The browser never sees it.
-const recommendMovies = httpsCallable(getFunctions(app), "recommendMovies");
+import { app } from "../firebase";
+
+let callable;
 
 export async function getMovieRecommendations(userPrompt) {
-  try {
-    const result = await recommendMovies({ prompt: userPrompt });
-    return Array.isArray(result.data?.titles) ? result.data.titles : [];
-  } catch (error) {
-    console.error("Recommendation error:", error);
-    return [];
+  if (!callable) {
+    const { getFunctions, httpsCallable } = await import("firebase/functions");
+    callable = httpsCallable(getFunctions(app), "recommendMovies");
   }
+  const result = await callable({ prompt: userPrompt });
+  return Array.isArray(result.data?.titles) ? result.data.titles : [];
 }

@@ -1,0 +1,11 @@
+.home {
+  padding-bottom: 16px;
+}
+
+.home code,
+.page code {
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.9em;
+}
