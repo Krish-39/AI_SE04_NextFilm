@@ -15,10 +15,17 @@ The two are independent: the live app gets its suggestions from Gemini and TMDb,
 
 ## Features
 
-- Trending, top-rated and genre rows from TMDb, plus title details, cast, trailers and similar movies
-- Search: short queries go straight to TMDb; longer descriptions ("a slow, sad space movie") go to Gemini, which suggests five titles that are then looked up on TMDb
-- Email/password and Google sign-in with Firebase Authentication
-- A per-user watchlist stored in Firestore (`users/{uid}/watchlist`)
+- **Home**: a full-bleed featured carousel of this week's trending films, a Top 10 rail, trending and top-rated series, and genre rails
+- **Ask NextFilm AI**: describe a mood or plot ("a slow, sad space movie") and Gemini picks five titles, looked up on TMDb
+- **Search**: short queries search titles across films and series; longer ones go to the AI, with a one-click switch between the two
+- **Title pages** for films (`/movie/:id`) and series (`/tv/:id`): backdrop, poster, runtime or seasons, genres, director or creators, cast, similar titles, and the trailer in an in-page player
+- **Watchlist** for films and series, stored per user in Firestore (`users/{uid}/watchlist`)
+- Email/password and Google sign-in, password reset, and friendly error messages
+- Fully responsive, keyboard accessible (skip link, focus rings, labelled controls), and respects reduced-motion settings
+
+## Design
+
+The look and its rules (palette, type, spacing, motion, components) are written down in [`DESIGN.md`](DESIGN.md). In short: a warm near-black screening room where posters and backdrops carry the colour, Archivo for title cards, Instrument Sans for everything else, and one projector-amber accent.
 
 ## How the AI search stays safe
 
@@ -26,7 +33,7 @@ The Gemini key never reaches the browser. `src/services/gemini.js` calls the `re
 
 ## Run the web app
 
-Prerequisites: Node.js 20 or later and npm.
+Prerequisites: Node.js 20.19 or later and npm.
 
 ```bash
 git clone https://github.com/Krish-39/AI_SE04_NextFilm.git
@@ -51,6 +58,15 @@ firebase deploy --only functions
 ```
 
 The project is set in `.firebaserc` (`nextfilm-ai`), the same project `src/firebase.js` connects to.
+
+### Deploy the site
+
+```bash
+npm run build
+firebase deploy --only hosting
+```
+
+`firebase.json` serves `dist/` with a single-page-app rewrite, so deep links like `/movie/603` work on refresh. If your hosting site lives in a different Firebase project from the one in `.firebaserc`, add `--project <id>`.
 
 ### Checks
 
@@ -85,7 +101,6 @@ Dataset: F. Maxwell Harper and Joseph A. Konstan. 2015. *The MovieLens Datasets:
 
 - The Python models are not served to the web app.
 - There is no offline evaluation (precision@k, RMSE) of the recommenders yet.
-- `src/pages/Profile.jsx` exists but is not routed.
 
 ## License
 
