@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 
 import { useAuth, useToast, useWatchlist } from "../lib/contexts";
+import { watchlistErrorMessage } from "../lib/firestoreError";
 import { titleOf } from "../lib/tmdb";
 
 export default function WatchlistButton({ item, compact = false }) {
@@ -29,8 +30,8 @@ export default function WatchlistButton({ item, compact = false }) {
         await watchlist.add(item);
         toast(`Saved “${titleOf(item)}” to your watchlist`, "success");
       }
-    } catch {
-      toast("Couldn’t update your watchlist. Check your connection and try again.", "error");
+    } catch (error) {
+      toast(watchlistErrorMessage(error, saved ? "remove that" : "save that"), "error");
     } finally {
       setBusy(false);
     }

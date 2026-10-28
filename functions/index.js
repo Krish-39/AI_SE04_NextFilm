@@ -10,9 +10,14 @@ import {
   validateCommunityPosts,
   validatePrompt,
 } from "./recommend.js";
+import { searchReddit, validateRedditRequest } from "./reddit.js";
 
 // Set once with: firebase functions:secrets:set GEMINI_API_KEY
 const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
+// Reddit app credentials (reddit.com/prefs/apps, type "script" or "web app").
+// Set both once with firebase functions:secrets:set; see README.
+const REDDIT_CLIENT_ID = defineSecret("REDDIT_CLIENT_ID");
+const REDDIT_CLIENT_SECRET = defineSecret("REDDIT_CLIENT_SECRET");
 
 export const recommendMovies = onCall(
   {
@@ -51,5 +56,30 @@ export const recommendMovies = onCall(
     if (community.status === "rejected") logger.warn("Community extraction failed", community.reason);
 
     return { titles: picks.value, community: community.status === "fulfilled" ? community.value : [] };
+  }
+);
+
+// Reddit blocks browser requests, so the app searches Reddit through here.
+export const communitySearch = onCall(
+  {
+    secrets: [REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET],
+    maxInstances: 2,
+    concurrency: 20,
+    timeoutSeconds: 15,
+  },
+  async (request) => {
+    const query = validateRedditRequest(request.data);
+    if (!query) {
+      throw new HttpsError("invalid-argument", "subreddits and query are required");
+    }
+    const result = await searchReddit(query, {
+      clientId: REDDIT_CLIENT_ID.value(),
+      clientSecret: REDDIT_CLIENT_SECRET.value(),
+    });
+    if (result.failed === query.subreddits.length) {
+      logger.warn("All Reddit searches failed", { query: query.query });
+      throw new HttpsError("unavailable", "Reddit is unavailable right now");
+    }
+    return { posts: result.posts };
   }
 );

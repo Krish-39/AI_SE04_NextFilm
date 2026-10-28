@@ -48,8 +48,8 @@ function WatchlistProvider({ user, children }) {
     if (!uid) return undefined;
     let active = true;
     getWatchlist(uid).then(
-      (items) => active && setState({ uid, items, status: "ready" }),
-      () => active && setState({ uid, items: [], status: "error" }),
+      (items) => active && setState({ uid, items, status: "ready", error: null }),
+      (error) => active && setState({ uid, items: [], status: "error", error }),
     );
     return () => {
       active = false;
@@ -64,6 +64,7 @@ function WatchlistProvider({ user, children }) {
     () => ({
       items: current.items,
       status: current.status,
+      error: current.error || null,
       has: (item) => keys.has(watchlistKey(item)),
       add: async (item) => {
         const entry = await addToWatchlist(uid, item);
@@ -77,7 +78,7 @@ function WatchlistProvider({ user, children }) {
         setState((s) => ({ ...s, items: s.items.filter((i) => watchlistKey(i) !== watchlistKey(item)) }));
       },
     }),
-    [current.items, current.status, keys, uid],
+    [current.items, current.status, current.error, keys, uid],
   );
 
   return <WatchlistContext.Provider value={value}>{children}</WatchlistContext.Provider>;

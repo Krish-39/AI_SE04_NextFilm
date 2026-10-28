@@ -30,7 +30,7 @@ A small hybrid recommender in `src/lib/forYou.js`: TMDB's recommendations for yo
 
 ### Reddit
 
-Reddit's public search JSON is called from the browser (no key needed). If Reddit is slow or rate-limits, the app carries on without it: AI search waits at most 3.5 seconds, and title pages fall back to a "See all discussions on Reddit" link. Post titles are sent to the Cloud Function, which asks Gemini to extract the titles people are recommending; the browser never sees the Gemini key.
+Reddit blocks requests made directly from browsers, so searches go through the `communitySearch` Cloud Function in production and through a dev-server proxy during `npm run dev`. If Reddit is slow or rate-limits, the app carries on without it: AI search waits at most 3.5 seconds, and title pages fall back to a "See all discussions on Reddit" link. Post titles are sent to the Cloud Function, which asks Gemini to extract the titles people are recommending; the browser never sees the Gemini key.
 
 ## Design
 
@@ -54,17 +54,30 @@ npm run dev
 
 Open <http://localhost:5173>. Browsing and direct search work with just the TMDb key; AI search needs the Cloud Function deployed.
 
-### Deploy the Cloud Function
+### Deploy the Cloud Functions
 
-Cloud Functions need the Firebase Blaze plan. From the repository root:
+Two functions live in `functions/`: `recommendMovies` (Gemini picks) and `communitySearch` (Reddit search; Reddit blocks requests made straight from browsers, so the site asks this function). Cloud Functions need the Firebase Blaze plan. From the repository root:
 
 ```bash
 npm install -g firebase-tools
 firebase login
 cd functions && npm ci && cd ..
 firebase functions:secrets:set GEMINI_API_KEY
+firebase functions:secrets:set REDDIT_CLIENT_ID      # see below
+firebase functions:secrets:set REDDIT_CLIENT_SECRET
 firebase deploy --only functions
 ```
+
+**Reddit credentials:** sign in to Reddit, open <https://www.reddit.com/prefs/apps>, choose **create another app**, pick **script**, use any redirect URL (e.g. `http://localhost`), and copy the id under the app name and the secret. With them, the function uses Reddit's official API. Without them (set both to `none`) it falls back to Reddit's public JSON, which Reddit may rate-limit or block from Google's servers.
+
+During `npm run dev`, Reddit requests go through Vite's `/reddit-api` proxy on your own machine instead, so the community features work locally without deploying anything.
+
+### Database rules
+
+The watchlist lives in Firestore at `users/{uid}/watchlist`. `firestore.rules` lets each signed-in user read and change only their own list. If saving says *permission denied*, the project's rules are out of date (Firebase "test mode" rules expire after 30 days). Publish these rules either way:
+
+- **Console:** Firebase console → Firestore Database → Rules → paste `firestore.rules` → Publish
+- **CLI:** `firebase deploy --only firestore:rules`
 
 The project is set in `.firebaserc` (`nextfilm-ai`), the same project `src/firebase.js` connects to.
 

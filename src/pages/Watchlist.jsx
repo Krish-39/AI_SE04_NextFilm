@@ -5,6 +5,7 @@ import PosterGrid from "../components/PosterGrid";
 import StateMessage from "../components/StateMessage";
 import Tabs from "../components/Tabs";
 import { useAuth, useToast, useWatchlist } from "../lib/contexts";
+import { watchlistErrorMessage } from "../lib/firestoreError";
 import { sortItems, WATCHLIST_SORTS } from "../lib/sortItems";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { image, pathOf, ratingOf, titleOf, yearOf } from "../lib/tmdb";
@@ -12,7 +13,7 @@ import "./Watchlist.css";
 
 export default function Watchlist() {
   useDocumentTitle("Your watchlist");
-  const { items, status, remove } = useWatchlist();
+  const { items, status, error, remove } = useWatchlist();
   const toast = useToast();
   const [params, setParams] = useSearchParams();
   const type = ["movie", "tv"].includes(params.get("type")) ? params.get("type") : "all";
@@ -31,8 +32,8 @@ export default function Watchlist() {
     try {
       await remove(item);
       toast(`Removed “${titleOf(item)}”`);
-    } catch {
-      toast("Couldn’t remove that title. Try again.", "error");
+    } catch (error) {
+      toast(watchlistErrorMessage(error, "remove that"), "error");
     }
   };
 
@@ -85,8 +86,8 @@ export default function Watchlist() {
       )}
 
       {status === "error" && (
-        <StateMessage icon={Bookmark} title="We couldn’t load your watchlist">
-          Check your connection and refresh the page.
+        <StateMessage icon={Bookmark} title="We couldn’t load your slip">
+          {watchlistErrorMessage(error, "load your watchlist")}
         </StateMessage>
       )}
 
