@@ -20,6 +20,8 @@ function slim(item) {
     poster_path: item.poster_path || null,
     backdrop_path: item.backdrop_path || null,
     vote_average: item.vote_average ?? null,
+    // Kept so "For you" can learn which genres you like.
+    genre_ids: item.genre_ids || (item.genres || []).map((g) => g.id),
     release_date: item.release_date || item.first_air_date || null,
     addedAt: Date.now(),
   };

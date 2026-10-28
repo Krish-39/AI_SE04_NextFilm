@@ -204,3 +204,50 @@
     display: none;
   }
 }
+
+.site-header__signin-icon {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .logo-word {
+    font-size: 1.1875rem;
+  }
+
+  .site-header__actions {
+    gap: 0;
+  }
+
+  .site-header__signin {
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    margin-left: 4px;
+  }
+
+  .site-header__signin-icon {
+    display: block;
+  }
+
+  .site-header__signin-label {
+    display: none;
+  }
+
+  .account {
+    margin-left: 4px;
+  }
+}
+
+@media (max-width: 360px) {
+  .site-header {
+    gap: 6px;
+  }
+
+  .logo-word {
+    font-size: 1.0625rem;
+  }
+
+  .logo-mark {
+    width: 20px;
+  }
+}

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
-import { Bookmark, LogOut, Search, X } from "lucide-react";
+import { Bookmark, Compass, LogIn, LogOut, Search, X } from "lucide-react";
 
 import { auth } from "../firebase";
 import { useAuth, useToast } from "../lib/contexts";
@@ -79,6 +79,7 @@ export default function SiteHeader() {
         <NavLink to="/" end>
           Home
         </NavLink>
+        <NavLink to="/browse">Browse</NavLink>
         <NavLink to="/watchlist">Watchlist</NavLink>
       </nav>
 
@@ -108,13 +109,17 @@ export default function SiteHeader() {
           </button>
         )}
 
+        <Link to="/browse" className="icon-btn site-header__watchlist" aria-label="Browse">
+          <Compass size={20} />
+        </Link>
         <Link to="/watchlist" className="icon-btn site-header__watchlist" aria-label="Watchlist">
           <Bookmark size={20} />
         </Link>
 
         {ready && !user && (
-          <Link to="/login" className="btn btn-secondary site-header__signin">
-            Sign in
+          <Link to="/login" className="btn btn-secondary site-header__signin" aria-label="Sign in">
+            <LogIn size={18} aria-hidden="true" className="site-header__signin-icon" />
+            <span className="site-header__signin-label">Sign in</span>
           </Link>
         )}
 

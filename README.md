@@ -15,13 +15,22 @@ The two are independent: the live app gets its suggestions from Gemini and TMDb,
 
 ## Features
 
-- **Home**: a full-bleed featured carousel of this week's trending films, a Top 10 rail, trending and top-rated series, and genre rails
-- **Ask NextFilm AI**: describe a mood or plot ("a slow, sad space movie") and Gemini picks five titles, looked up on TMDb
-- **Search**: short queries search titles across films and series; longer ones go to the AI, with a one-click switch between the two
-- **Title pages** for films (`/movie/:id`) and series (`/tv/:id`): backdrop, poster, runtime or seasons, genres, director or creators, cast, similar titles, and the trailer in an in-page player
-- **Watchlist** for films and series, stored per user in Firestore (`users/{uid}/watchlist`)
+- **Home**: a full-bleed featured carousel of this week's trending films, the AI "ask" box, a **Picked for you** row built from your watchlist, a Top 10 rail, trending and top-rated series, and genre rails with "See all" links
+- **Browse** (`/browse`): filter films or series by genres (match all), release year or decade, minimum rating, length, original language and streaming service in your country, sorted by popularity, rating, date or title. Filters live in the URL, so any view can be bookmarked or shared; on phones they open in a bottom sheet with a live result count
+- **Ask NextFilm AI**: describe a mood or plot ("a slow, sad space movie") and Gemini picks five films or series. It also reads matching threads from Reddit recommendation communities (r/MovieSuggestions, r/NetflixBestOf, …) and adds what people there recommend, tagged **Reddit**, with links to the threads
+- **Search**: short queries search titles across films and series; longer ones go to the AI. Results can be narrowed to films or series
+- **Title pages** for films (`/movie/:id`) and series (`/tv/:id`): backdrop, poster, runtime or seasons, genres, director or creators, cast, similar titles, the trailer in an in-page player, **Where to watch** (stream / free / rent / buy per country, data by JustWatch), and **Community buzz** (a 0–100 Reddit buzz score with the top threads)
+- **Watchlist** for films and series, stored per user in Firestore (`users/{uid}/watchlist`), with Films / Series tabs and sorting
 - Email/password and Google sign-in, password reset, and friendly error messages
-- Fully responsive, keyboard accessible (skip link, focus rings, labelled controls), and respects reduced-motion settings
+- Fully responsive down to 320px, keyboard accessible (skip link, focus rings, labelled controls), and respects reduced-motion settings
+
+### How "Picked for you" works
+
+A small hybrid recommender in `src/lib/forYou.js`: TMDB's recommendations for your four most recent saves (collaborative signal), plus popular titles in the genres you save most (content signal), ranked together with rating as a tie-breaker. Titles you already saved are never suggested.
+
+### Reddit
+
+Reddit's public search JSON is called from the browser (no key needed). If Reddit is slow or rate-limits, the app carries on without it: AI search waits at most 3.5 seconds, and title pages fall back to a "See all discussions on Reddit" link. Post titles are sent to the Cloud Function, which asks Gemini to extract the titles people are recommending; the browser never sees the Gemini key.
 
 ## Design
 
@@ -72,6 +81,7 @@ firebase deploy --only hosting
 
 ```bash
 npm run lint
+npm test            # filters, recommender, Reddit, sorting
 npm run build
 cd functions && npm test
 ```

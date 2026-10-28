@@ -101,6 +101,11 @@
   padding: 0 var(--gutter);
 }
 
+.title-body__main {
+  display: grid;
+  gap: 40px;
+}
+
 .title-body__overview p {
   margin-top: 12px;
   max-width: 68ch;
@@ -198,4 +203,10 @@
   .title-hero__actions .btn {
     flex: 1;
   }
+}
+
+.title-buzz {
+  max-width: 1440px;
+  margin: 48px auto 0;
+  padding: 0 var(--gutter);
 }

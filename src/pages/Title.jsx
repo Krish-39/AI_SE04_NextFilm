@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Clapperboard, Play, Star } from "lucide-react";
 
+import CommunityBuzz from "../components/CommunityBuzz";
 import Rail from "../components/Rail";
 import StateMessage from "../components/StateMessage";
 import TrailerDialog from "../components/TrailerDialog";
 import WatchlistButton from "../components/WatchlistButton";
+import WhereToWatch from "../components/WhereToWatch";
 import { useAsync } from "../lib/useAsync";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { image, ratingOf, runtimeOf, titleOf, tmdb, trailerOf, yearOf } from "../lib/tmdb";
@@ -120,9 +122,12 @@ export default function Title({ kind }) {
       </section>
 
       <section className="title-body">
-        <div className="title-body__overview">
-          <h2 className="section-title">Overview</h2>
-          <p>{data.overview || "No overview available yet."}</p>
+        <div className="title-body__main">
+          <div className="title-body__overview">
+            <h2 className="section-title">Overview</h2>
+            <p>{data.overview || "No overview available yet."}</p>
+          </div>
+          <WhereToWatch kind={kind} id={data.id} title={titleOf(data)} />
         </div>
         <dl className="facts">
           {director && (
@@ -168,6 +173,10 @@ export default function Title({ kind }) {
           </ul>
         </section>
       )}
+
+      <div className="title-buzz">
+        <CommunityBuzz title={titleOf(data)} kind={kind} />
+      </div>
 
       {data.similar?.length > 0 && (
         <Rail id="similar" title={`More like ${titleOf(data)}`} items={data.similar.filter((s) => s.poster_path)} />
