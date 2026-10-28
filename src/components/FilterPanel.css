@@ -1,0 +1,141 @@
+.filter-panel {
+  display: grid;
+  gap: 4px;
+}
+
+.filter-group {
+  margin: 0;
+  padding: 18px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  min-width: 0;
+}
+
+.filter-group:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.filter-group legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 0;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.filter-group legend + * {
+  clear: both;
+}
+
+.choice-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.choice-list--tight + .choice-list,
+.year-range + .choice-list {
+  margin-top: 10px;
+}
+
+.choice {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: var(--step--1);
+  transition: background-color 150ms, border-color 150ms, color 150ms;
+}
+
+.choice:hover {
+  border-color: var(--text-3);
+  color: var(--text);
+}
+
+.choice[aria-pressed="true"],
+.choice[aria-checked="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+@media (pointer: coarse) {
+  .choice {
+    min-height: 44px;
+  }
+}
+
+.filter-hint {
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  color: var(--text-3);
+}
+
+.year-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.year-range label,
+.region-picker {
+  display: grid;
+  gap: 4px;
+  font-size: 0.8125rem;
+  color: var(--text-3);
+}
+
+.provider-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.provider {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 6px 2px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-3);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.provider img {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  opacity: 0.75;
+  transition: opacity 150ms;
+}
+
+.provider span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.provider:hover img {
+  opacity: 1;
+}
+
+.provider[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.provider[aria-pressed="true"] img {
+  opacity: 1;
+}

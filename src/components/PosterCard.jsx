@@ -3,7 +3,7 @@ import { Star } from "lucide-react";
 
 import { image, pathOf, ratingOf, titleOf, yearOf } from "../lib/tmdb";
 
-export default function PosterCard({ item, rank, eager = false }) {
+export default function PosterCard({ item, rank, eager = false, badge, showKind = false }) {
   const title = titleOf(item);
   const year = yearOf(item);
   const rating = ratingOf(item);
@@ -18,6 +18,12 @@ export default function PosterCard({ item, rank, eager = false }) {
       )}
       <Link to={pathOf(item)} className="poster-card__link">
         <div className="poster-card__frame">
+          {(badge || (showKind && item.media_type === "tv")) && (
+            <span className="poster-card__badges">
+              {showKind && item.media_type === "tv" && <span className="poster-badge">Series</span>}
+              {badge}
+            </span>
+          )}
           {src ? (
             <img
               src={src}

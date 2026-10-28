@@ -50,6 +50,35 @@ export const tmdb = {
     request("/search/multi", { query, include_adult: "false" }).then((d) =>
       (d.results || []).filter((r) => (r.media_type === "movie" || r.media_type === "tv") && r.poster_path),
     ),
+  discover: (kind, params, page = 1) =>
+    request(`/discover/${kind}`, { ...params, page }).then((d) => ({
+      results: withKind(d.results, kind),
+      total: d.total_results || 0,
+      pages: Math.min(d.total_pages || 0, 500),
+    })),
+  providers: (kind, region) =>
+    request(`/watch/providers/${kind}`, { watch_region: region }).then((d) =>
+      (d.results || [])
+        .filter((p) => p.display_priorities?.[region] !== undefined || p.display_priority !== undefined)
+        .sort(
+          (a, b) =>
+            (a.display_priorities?.[region] ?? a.display_priority ?? 999) -
+            (b.display_priorities?.[region] ?? b.display_priority ?? 999),
+        ),
+    ),
+  watchProviders: (kind, id, region) =>
+    request(`/${kind}/${id}/watch/providers`).then((d) => {
+      const r = d.results?.[region];
+      if (!r) return null;
+      return { link: r.link || null, stream: r.flatrate || [], free: [...(r.free || []), ...(r.ads || [])], rent: r.rent || [], buy: r.buy || [] };
+    }),
+  recommendations: (kind, id) =>
+    request(`/${kind}/${id}/recommendations`).then((d) => withKind(d.results, kind)),
+  findTitle: (title) =>
+    request("/search/multi", { query: title, include_adult: "false" }).then(
+      (d) =>
+        (d.results || []).find((r) => (r.media_type === "movie" || r.media_type === "tv") && r.poster_path) || null,
+    ),
   findMovie: (title) =>
     request("/search/movie", { query: title, include_adult: "false" }).then(
       (d) => withKind(d.results, "movie").find((r) => r.poster_path) || null,

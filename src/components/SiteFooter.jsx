@@ -12,6 +12,7 @@ export default function SiteFooter() {
         </Link>
         <nav aria-label="Footer">
           <Link to="/">Home</Link>
+          <Link to="/browse">Browse</Link>
           <Link to="/watchlist">Watchlist</Link>
           <a href="https://github.com/Krish-39/AI_SE04_NextFilm">Source on GitHub</a>
         </nav>

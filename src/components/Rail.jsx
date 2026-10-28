@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import PosterCard, { PosterSkeleton } from "./PosterCard";
 import "./Rail.css";
 
-export default function Rail({ id, title, items, loading, error, ranked = false, onRetry }) {
+export default function Rail({ id, title, items, loading, error, ranked = false, onRetry, href, subtitle, renderBadge }) {
   const scroller = useRef(null);
   const [edges, setEdges] = useState({ start: true, end: false });
 
@@ -30,10 +31,18 @@ export default function Rail({ id, title, items, loading, error, ranked = false,
   return (
     <section className="rail" id={id} aria-labelledby={headingId}>
       <div className="rail__head">
-        <h2 className="section-title" id={headingId}>
-          {title}
-        </h2>
+        <div className="rail__heading">
+          <h2 className="section-title" id={headingId}>
+            {title}
+          </h2>
+          {subtitle && <p className="rail__subtitle">{subtitle}</p>}
+        </div>
         <div className="rail__controls">
+          {href && (
+            <Link to={href} className="rail__all">
+              See all<span className="visually-hidden"> {title}</span>
+            </Link>
+          )}
           <button
             type="button"
             className="icon-btn"
@@ -69,7 +78,12 @@ export default function Rail({ id, title, items, loading, error, ranked = false,
           {loading || !list
             ? Array.from({ length: 8 }, (_, i) => <PosterSkeleton key={i} />)
             : list.map((item, i) => (
-                <PosterCard key={`${item.media_type}-${item.id}`} item={item} rank={ranked ? i + 1 : undefined} />
+                <PosterCard
+                  key={`${item.media_type}-${item.id}`}
+                  item={item}
+                  rank={ranked ? i + 1 : undefined}
+                  badge={renderBadge?.(item)}
+                />
               ))}
         </div>
       )}

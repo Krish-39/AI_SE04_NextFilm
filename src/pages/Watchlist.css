@@ -29,3 +29,20 @@
 .watchlist__remove:hover {
   color: var(--danger);
 }
+
+.watchlist__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.watchlist__sort {
+  width: 200px;
+}
+
+.watchlist__remove {
+  min-height: 44px;
+}

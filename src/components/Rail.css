@@ -14,7 +14,30 @@
 
 .rail__controls {
   display: flex;
+  align-items: center;
   gap: 4px;
+}
+
+.rail__subtitle {
+  margin-top: 2px;
+  color: var(--text-3);
+  font-size: var(--step--1);
+}
+
+.rail__all {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  color: var(--text-2);
+  font-size: var(--step--1);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+}
+
+.rail__all:hover {
+  color: var(--text);
 }
 
 .rail__controls .icon-btn:disabled {
@@ -23,7 +46,7 @@
 }
 
 @media (hover: none) {
-  .rail__controls {
+  .rail__controls .icon-btn {
     display: none;
   }
 }
@@ -78,11 +101,42 @@
 }
 
 .poster-card__frame {
+  position: relative;
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.poster-card__badges {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.poster-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  background: rgb(12 11 10 / 0.86);
+  color: var(--text);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+}
+
+.poster-badge--reddit {
+  background: #ff4500;
+  color: #fff;
 }
 
 .poster-card__frame img {
@@ -94,7 +148,37 @@
 }
 
 .poster-card__link:hover .poster-card__frame img,
-.poster-card__link:focus-visible .poster-card__frame img {
+.poster-card__link:focus-visible .poster-card__badges {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.poster-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  background: rgb(12 11 10 / 0.86);
+  color: var(--text);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+}
+
+.poster-badge--reddit {
+  background: #ff4500;
+  color: #fff;
+}
+
+.poster-card__frame img {
   filter: brightness(1.06);
 }
 

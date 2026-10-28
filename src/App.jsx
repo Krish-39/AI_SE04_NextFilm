@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 
 const Title = lazy(() => import("./pages/Title"));
 const Search = lazy(() => import("./pages/Search"));
+const Browse = lazy(() => import("./pages/Browse"));
 const Watchlist = lazy(() => import("./pages/Watchlist"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/movie/:id" element={<Title kind="movie" />} />
           <Route path="/tv/:id" element={<Title kind="tv" />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/browse" element={<Browse />} />
           <Route
             path="/watchlist"
             element={

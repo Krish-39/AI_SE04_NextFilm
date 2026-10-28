@@ -1,7 +1,7 @@
 import PosterCard, { PosterSkeleton } from "./PosterCard";
 import "./PosterGrid.css";
 
-export default function PosterGrid({ items, loading, count = 12, renderExtra }) {
+export default function PosterGrid({ items, loading, count = 12, renderExtra, renderBadge, showKind = false }) {
   return (
     <ul className="poster-grid">
       {loading
@@ -12,7 +12,7 @@ export default function PosterGrid({ items, loading, count = 12, renderExtra }) 
           ))
         : items.map((item, i) => (
             <li key={`${item.media_type}-${item.id}`}>
-              <PosterCard item={item} eager={i < 6} />
+              <PosterCard item={item} eager={i < 6} badge={renderBadge?.(item)} showKind={showKind} />
               {renderExtra?.(item)}
             </li>
           ))}
