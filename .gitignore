@@ -1,2 +1,14 @@
 node_modules
 dist
+
+# MovieLens data may not be redistributed: run Source/Models/download_data.py
+Data/Raw/*
+Data/Processed/*
+!Data/Raw/.gitkeep
+!Data/Processed/.gitkeep
+
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example

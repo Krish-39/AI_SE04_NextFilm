@@ -1,11 +1,10 @@
 import pandas as pd
-
-movies = pd.read_csv(
-    "Data/Processed/movies_cleaned.csv"
-)
-
-
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+from paths import PROCESSED_DIR
+
+movies = pd.read_csv(PROCESSED_DIR / "movies_cleaned.csv")
 
 movies["content"] = (
     movies["genres"] + " " +
@@ -13,53 +12,48 @@ movies["content"] = (
 )
 
 vectorizer = CountVectorizer()
-
-genre_matrix = vectorizer.fit_transform(
-    movies["content"]
-)
+genre_matrix = vectorizer.fit_transform(movies["content"])
+similarity_matrix = cosine_similarity(genre_matrix, genre_matrix)
 
 
-from sklearn.metrics.pairwise import cosine_similarity
-
-similarity_matrix = cosine_similarity(
-    genre_matrix,
-    genre_matrix
-)
-
-
-
-def recommend_movies(movie_title, n=5):
-
-    movie_title = movie_title.lower()
+def get_content_recommendations(movie_title, n=5):
+    """Return up to n titles most similar in genre to movie_title, best first."""
 
     matches = movies[
-        movies["title"].str.lower().str.contains(movie_title)
+        movies["title"].str.lower().str.contains(
+            movie_title.lower(), regex=False
+        )
     ]
 
     if matches.empty:
+        return []
+
+    idx = matches.index[0]
+    scores = sorted(
+        enumerate(similarity_matrix[idx]),
+        key=lambda x: x[1],
+        reverse=True,
+    )
+
+    return [
+        movies.iloc[movie_index]["title"]
+        for movie_index, _ in scores
+        if movie_index != idx
+    ][:n]
+
+
+def recommend_movies(movie_title, n=5):
+    """Print content-based recommendations (kept for the EDA report)."""
+
+    recommendations = get_content_recommendations(movie_title, n)
+    if not recommendations:
         print("Movie not found.")
         return
 
-    idx = matches.index[0]
+    print(f"\nRecommendations for {movie_title}:\n")
+    for title in recommendations:
+        print(title)
 
-    scores = list(
-        enumerate(similarity_matrix[idx])
-    )
 
-    scores = sorted(
-        scores,
-        key=lambda x: x[1],
-        reverse=True
-    )
-
-    recommendations = scores[1:n+1]
-
-    print(f"\nRecommendations for {matches.iloc[0]['title']}:\n")
-
-    for movie_index, score in recommendations:
-        print(
-            movies.iloc[movie_index]["title"]
-        )
-
-recommend_movies("Toy Story")
-
+if __name__ == "__main__":
+    recommend_movies("Toy Story")

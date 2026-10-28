@@ -1,67 +1,92 @@
-# NextFlim
+# NextFilm
 
-An AI-powered movie and TV discovery platform. It combines searchable TMDb titles, user preferences stored in Firebase, and content-based, collaborative, and hybrid recommendation approaches.
+**Live demo:** <https://nextfilm-84dc1.web.app>
+
+An AI-assisted movie discovery app built for the DA120B group project. Search TMDb, browse curated rows, describe the kind of film you're in the mood for and get AI picks, and keep a personal watchlist behind Firebase sign-in.
+
+The repository has two parts:
+
+| Part | Where | What it does |
+| --- | --- | --- |
+| Web app | `src/`, `functions/` | React + Vite front end, Firebase Auth and Firestore, a Cloud Function that calls Gemini |
+| Recommender research | `Source/Models/` | Python content-based, collaborative and hybrid recommenders on MovieLens 1M, plus EDA |
+
+The two are independent: the live app gets its suggestions from Gemini and TMDb, and the Python models are the offline study behind the report in `Documentation/`.
 
 ## Features
 
-- Search and browse movies and TV series, including trending and popular titles
-- View title details, similar titles, trailers, and genres
-- Sign in with Firebase Authentication and maintain a personal watchlist
-- Generate recommendations from watchlists, genres, search history, and user preferences
-- Use Gemini AI for natural-language movie discovery
-- Surface movie-related community discussions through Reddit integration
+- Trending, top-rated and genre rows from TMDb, plus title details, cast, trailers and similar movies
+- Search: short queries go straight to TMDb; longer descriptions ("a slow, sad space movie") go to Gemini, which suggests five titles that are then looked up on TMDb
+- Email/password and Google sign-in with Firebase Authentication
+- A per-user watchlist stored in Firestore (`users/{uid}/watchlist`)
 
-## Technology
+## How the AI search stays safe
 
-- React, Vite, React Router, Framer Motion
-- Firebase Authentication and Firestore
-- TMDb API, Gemini AI API, Reddit API
-- JavaScript, CSS
+The Gemini key never reaches the browser. `src/services/gemini.js` calls the `recommendMovies` Cloud Function (`functions/index.js`), which holds the key as a Firebase secret, validates the prompt (max 500 characters), fences it off from the instructions, and returns at most five cleaned-up titles. `maxInstances` caps how far traffic can scale.
 
-## Recommendation flow
+## Run the web app
 
-1. A user browses titles or saves movies to a watchlist.
-2. User preferences are stored in Firestore and movie metadata is retrieved from TMDb.
-3. Content-based and collaborative methods produce a hybrid set of suggestions.
-4. Recommendations are shown in the application; Gemini AI also supports natural-language searches.
-
-## Run locally
-
-Prerequisites: Node.js 18 or later, npm, and Git.
+Prerequisites: Node.js 20 or later and npm.
 
 ```bash
 git clone https://github.com/Krish-39/AI_SE04_NextFilm.git
 cd AI_SE04_NextFilm
-npm install
+npm ci
+echo "VITE_TMDB_API_KEY=your_tmdb_key" > .env
 npm run dev
 ```
 
-The Vite development server is available at http://localhost:5173.
+Open <http://localhost:5173>. Browsing and direct search work with just the TMDb key; AI search needs the Cloud Function deployed.
 
-## Environment variables
+### Deploy the Cloud Function
 
-Create a local `.env` file and add the API credentials for the services you use. Never commit real keys or secrets.
-
-```env
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
-VITE_TMDB_API_KEY=
-VITE_GEMINI_API_KEY=
-VITE_REDDIT_CLIENT_ID=
-VITE_REDDIT_CLIENT_SECRET=
-```
-
-## Build and preview
+Cloud Functions need the Firebase Blaze plan. From the repository root:
 
 ```bash
-npm run build
-npm run preview
+npm install -g firebase-tools
+firebase login
+cd functions && npm ci && cd ..
+firebase functions:secrets:set GEMINI_API_KEY
+firebase deploy --only functions
 ```
 
-## Project notes
+The project is set in `.firebaserc` (`nextfilm-ai`), the same project `src/firebase.js` connects to.
 
-This repository documents the project as an academic DA120B project. Further improvement ideas recorded in the project notes include recommendation accuracy, preference learning, performance, and additional filtering options.
+### Checks
+
+```bash
+npm run lint
+npm run build
+cd functions && npm test
+```
+
+## Run the recommender models
+
+Prerequisites: Python 3.10+ with `pandas`, `scikit-learn` and `matplotlib`.
+
+MovieLens data may not be redistributed, so it is not in this repository. Download it once, then run the pipeline from any directory:
+
+```bash
+python Source/Models/download_data.py     # MovieLens 1M into Data/Raw
+python Source/Models/01_preprocessing.py  # cleaned CSVs into Data/Processed
+python Source/Models/eda.py               # charts into Documentation/
+python Source/Models/content_based.py
+python Source/Models/collaborative_filtering.py
+python Source/Models/hybrid_model.py
+```
+
+- **Content-based** (`content_based.py`): cosine similarity over genre vectors.
+- **Collaborative** (`collaborative_filtering.py`): user-based and item-based cosine similarity on the user-movie rating matrix.
+- **Hybrid** (`hybrid_model.py`): interleaves both ranked lists, best first, without duplicates.
+
+Dataset: F. Maxwell Harper and Joseph A. Konstan. 2015. *The MovieLens Datasets: History and Context.* ACM TiiS 5, 4. <https://grouplens.org/datasets/movielens/1m/>
+
+## Known gaps
+
+- The Python models are not served to the web app.
+- There is no offline evaluation (precision@k, RMSE) of the recommenders yet.
+- `src/pages/Profile.jsx` exists but is not routed.
+
+## License
+
+[MIT](LICENSE)
