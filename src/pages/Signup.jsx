@@ -53,8 +53,9 @@ export default function Signup() {
 
   return (
     <AuthLayout
-      title="Create account"
-      subtitle="Save films and series to one watchlist, on every device."
+      card={{ name, email }}
+      title="Become a member"
+      subtitle="Free, forever. One slip for every film and series you want to watch, on every device."
       footer={
         <>
           Already have an account? <Link to="/login" state={location.state}>Sign in</Link>
@@ -109,7 +110,7 @@ export default function Signup() {
           </p>
         </div>
         <button type="submit" className="btn btn-primary" disabled={busy || !email || password.length < 6}>
-          {busy ? "Creating account…" : "Create account"}
+          {busy ? "Printing your card…" : "Get my card"}
         </button>
         <p className="auth__divider">or</p>
         <GoogleButton onClick={google} />

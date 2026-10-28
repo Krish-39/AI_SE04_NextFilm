@@ -21,7 +21,7 @@ export default function WhereToWatch({ kind, id, title }) {
   return (
     <section className="where" aria-labelledby="where-title">
       <div className="where__head">
-        <h2 className="section-title" id="where-title">
+        <h2 className="section-title tape tape--tilt-r" id="where-title">
           Where to watch
         </h2>
         <label className="where__region">

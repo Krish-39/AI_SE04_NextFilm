@@ -10,6 +10,11 @@
   font-size: clamp(2.5rem, 6vw, 4rem);
 }
 
+.browse__lede {
+  margin-top: 8px;
+  color: var(--text-3);
+}
+
 .browse__layout {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
@@ -53,8 +58,10 @@
 .browse__count {
   flex: 1;
   color: var(--text-2);
-  font-size: var(--step--1);
-  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .browse__sort {
@@ -73,18 +80,24 @@
 .active-filters button {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 34px;
+  gap: 8px;
+  min-height: 36px;
   padding: 0 10px 0 12px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--text);
-  font-size: var(--step--1);
+  border: 0;
+  border-radius: 2px;
+  background: var(--tape);
+  color: #f4f2ec;
+  font-family: var(--font-display);
+  font-stretch: 85%;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 0 rgb(0 0 0 / 0.5);
 }
 
 .active-filters button:hover {
-  border-color: var(--text-3);
+  background: var(--sticker);
 }
 
 .active-filters .active-filters__clear {
@@ -108,9 +121,9 @@
   max-height: 88svh;
   margin: auto auto 0;
   padding: 0;
-  border: 1px solid var(--line-strong);
+  border: 2px solid #0b0c0a;
   border-bottom: 0;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: 10px 10px 0 0;
   background: var(--surface);
   color: var(--text);
   box-shadow: var(--shadow-float);

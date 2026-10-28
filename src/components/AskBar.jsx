@@ -24,10 +24,15 @@ export default function AskBar() {
   return (
     <section className="ask" aria-labelledby="ask-title">
       <div className="ask__inner">
-        <h2 className="section-title" id="ask-title">
-          Not sure what to watch?
-        </h2>
-        <p className="ask__lede">Describe the mood, a plot, or a film you loved. NextFilm AI picks five.</p>
+        <div className="ask__clerk">
+          <h2 className="section-title tape" id="ask-title">
+            Ask the clerk
+          </h2>
+          <p className="ask__lede">
+            Tell me what kind of night it is. I’ll pull five tapes and check what the regulars on Reddit are
+            recommending too.
+          </p>
+        </div>
         <form
           className="ask__form"
           onSubmit={(e) => {
@@ -43,15 +48,18 @@ export default function AskBar() {
             className="input ask__input"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="e.g. a heist movie set in Europe with great music"
+            placeholder="Something like Arrival, but cosier…"
             maxLength={500}
             autoComplete="off"
           />
           <button type="submit" className="btn btn-primary ask__submit" disabled={!prompt.trim()}>
-            Find films <ArrowRight size={18} aria-hidden="true" />
+            Ask <ArrowRight size={18} aria-hidden="true" />
           </button>
         </form>
-        <ul className="ask__examples" aria-label="Example prompts">
+        <p className="ask__try" id="ask-try">
+          Or try one of these:
+        </p>
+        <ul className="ask__examples" aria-labelledby="ask-try">
           {EXAMPLES.map((ex) => (
             <li key={ex}>
               <button type="button" onClick={() => go(ex)}>

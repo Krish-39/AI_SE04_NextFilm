@@ -59,7 +59,10 @@ export default function Browse() {
   return (
     <main id="main" className="page browse">
       <div className="browse__head">
-        <h1 className="display browse__title">Browse</h1>
+        <div>
+          <h1 className="display browse__title">The aisles</h1>
+          <p className="browse__lede">Every film and series in the shop. Narrow it down, the clerk won’t judge.</p>
+        </div>
         <div className="segmented" role="tablist" aria-label="Type">
           {[
             ["movie", "Films"],
@@ -169,7 +172,7 @@ export default function Browse() {
         onClick={(e) => e.target === sheet.current && sheet.current.close()}
       >
         <div className="filter-sheet__head">
-          <h2 className="section-title">Filters</h2>
+          <h2 className="section-title tape">Filters</h2>
           <button type="button" className="icon-btn" onClick={() => sheet.current.close()} aria-label="Close filters">
             <X size={20} />
           </button>

@@ -1,4 +1,4 @@
-import { ArrowBigUp, ExternalLink, MessageSquare } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 import { redditSearchUrl, titleDiscussions } from "../lib/reddit";
 import { useAsync } from "../lib/useAsync";
@@ -14,44 +14,47 @@ export default function CommunityBuzz({ title, kind }) {
   return (
     <section className="buzz" aria-labelledby="buzz-title" aria-busy={loading}>
       <div className="buzz__head">
-        <h2 className="section-title" id="buzz-title">
-          <RedditIcon size={22} /> Community buzz
-        </h2>
+        <div>
+          <h2 className="section-title tape" id="buzz-title">
+            What the regulars say
+          </h2>
+          <p className="buzz__lede">
+            <RedditIcon size={13} /> Talk about {title} on Reddit
+            {data && data.discussions > 0 && (
+              <>
+                {" "}
+                · {label(data.score).toLowerCase()} across {data.discussions} thread{data.discussions === 1 ? "" : "s"}
+              </>
+            )}
+          </p>
+        </div>
         {data && data.discussions > 0 && (
-          <div className="buzz__score" aria-label={`Reddit buzz ${data.score} out of 100`}>
-            <span className="buzz__number">{data.score}</span>
-            <span className="buzz__of">/100</span>
-            <span className="buzz__label">
-              {label(data.score)} · {data.discussions} thread{data.discussions === 1 ? "" : "s"}
+          <span className="sticker sticker--yellow buzz__score" style={{ "--rot": "6deg" }}>
+            <span>
+              <span className="buzz__number">{data.score}</span>
+              <small>buzz</small>
             </span>
-          </div>
+            <span className="visually-hidden"> out of 100</span>
+          </span>
         )}
       </div>
 
       {loading && (
         <div className="buzz__list" aria-hidden="true">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="skeleton" style={{ height: 64 }} />
+            <div key={i} className="skeleton" style={{ height: 150 }} />
           ))}
         </div>
       )}
 
       {!loading && posts.length > 0 && (
         <ul className="buzz__list">
-          {posts.map((p) => (
-            <li key={p.id}>
-              <a href={p.permalink} target="_blank" rel="noreferrer">
-                <span className="buzz__post">{p.title}</span>
+          {posts.map((p, i) => (
+            <li key={p.id} style={{ "--rot": `${[-1.2, 0.8, -0.4][i]}deg` }}>
+              <a href={p.permalink} target="_blank" rel="noreferrer" className="index-card buzz__card">
+                <span className="hand buzz__post">“{p.title}”</span>
                 <span className="buzz__meta">
-                  <span>r/{p.subreddit}</span>
-                  <span>
-                    <ArrowBigUp size={14} aria-hidden="true" /> {p.score.toLocaleString()}
-                    <span className="visually-hidden"> upvotes</span>
-                  </span>
-                  <span>
-                    <MessageSquare size={13} aria-hidden="true" /> {p.comments.toLocaleString()}
-                    <span className="visually-hidden"> comments</span>
-                  </span>
+                  r/{p.subreddit} · {p.score.toLocaleString()} upvotes · {p.comments.toLocaleString()} comments
                 </span>
                 <ExternalLink size={14} aria-hidden="true" className="buzz__out" />
               </a>
@@ -61,7 +64,7 @@ export default function CommunityBuzz({ title, kind }) {
       )}
 
       {!loading && posts.length === 0 && (
-        <p className="buzz__empty">No Reddit discussions found yet.</p>
+        <p className="buzz__empty">No Reddit discussions found yet. Be the first regular to post one.</p>
       )}
 
       <a className="buzz__more" href={redditSearchUrl(title)} target="_blank" rel="noreferrer">

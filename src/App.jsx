@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import Reels from "./components/Reels";
 import SiteFooter from "./components/SiteFooter";
 import SiteHeader from "./components/SiteHeader";
 import Home from "./pages/Home";
@@ -32,7 +33,13 @@ export default function App() {
     <>
       <ScrollToTop />
       {!bare && <SiteHeader />}
-      <Suspense fallback={<div className="page" aria-busy="true" />}>
+      <Suspense
+        fallback={
+          <div className="page page--loading">
+            <Reels />
+          </div>
+        }
+      >
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/movie/:id" element={<Title kind="movie" />} />

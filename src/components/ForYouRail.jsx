@@ -35,7 +35,7 @@ export default function ForYouRail() {
   return (
     <Rail
       id="for-you"
-      title="Picked for you"
+      title="Put aside for you"
       subtitle={`Because you saved ${joinTitles(items.slice(0, 3).map(titleOf))}`}
       items={data}
       loading={loading}

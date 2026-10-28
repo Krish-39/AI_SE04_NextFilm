@@ -32,7 +32,7 @@ export default function Rail({ id, title, items, loading, error, ranked = false,
     <section className="rail" id={id} aria-labelledby={headingId}>
       <div className="rail__head">
         <div className="rail__heading">
-          <h2 className="section-title" id={headingId}>
+          <h2 className={`section-title tape${title.length % 2 ? " tape--tilt-r" : ""}`} id={headingId}>
             {title}
           </h2>
           {subtitle && <p className="rail__subtitle">{subtitle}</p>}
@@ -74,7 +74,7 @@ export default function Rail({ id, title, items, loading, error, ranked = false,
           )}
         </div>
       ) : (
-        <div className={`rail__track${ranked ? " rail__track--ranked" : ""}`} ref={scroller} onScroll={update}>
+        <div className="rail__track" ref={scroller} onScroll={update}>
           {loading || !list
             ? Array.from({ length: 8 }, (_, i) => <PosterSkeleton key={i} />)
             : list.map((item, i) => (

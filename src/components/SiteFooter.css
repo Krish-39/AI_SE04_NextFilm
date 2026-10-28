@@ -48,3 +48,21 @@
 .site-footer__note a {
   color: var(--text-2);
 }
+
+.site-footer__hours {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+}
+
+.site-footer nav a {
+  font-family: var(--font-display);
+  font-stretch: 85%;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+}

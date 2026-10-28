@@ -79,7 +79,9 @@ export default function Title({ kind }) {
             />
           )}
           <div className="title-hero__copy">
-            <p className="title-hero__kind">{kind === "tv" ? "Series" : "Film"}</p>
+            <p className="title-hero__kind">
+              <span className="poster-badge">{kind === "tv" ? "Series" : "Film"}</span>
+            </p>
             <h1 className="display title-hero__title">{titleOf(data)}</h1>
             {data.tagline && <p className="title-hero__tagline">{data.tagline}</p>}
             <p className="meta title-hero__meta">
@@ -124,7 +126,7 @@ export default function Title({ kind }) {
       <section className="title-body">
         <div className="title-body__main">
           <div className="title-body__overview">
-            <h2 className="section-title">Overview</h2>
+            <h2 className="section-title tape">Overview</h2>
             <p>{data.overview || "No overview available yet."}</p>
           </div>
           <WhereToWatch kind={kind} id={data.id} title={titleOf(data)} />
@@ -153,7 +155,7 @@ export default function Title({ kind }) {
 
       {cast.length > 0 && (
         <section className="cast" aria-labelledby="cast-title">
-          <h2 className="section-title" id="cast-title">
+          <h2 className="section-title tape tape--tilt-r" id="cast-title">
             Cast
           </h2>
           <ul className="cast__list">

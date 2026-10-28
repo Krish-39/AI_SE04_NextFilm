@@ -36,15 +36,13 @@
 .title-hero__poster {
   width: 100%;
   height: auto;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-float), inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  border-radius: 3px;
+  box-shadow: 0 20px 40px -16px rgb(0 0 0 / 0.9), -6px 0 0 #0b0c0a;
+  rotate: -1.5deg;
 }
 
 .title-hero__kind {
-  font-size: var(--step--1);
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .title-hero__title {
@@ -78,11 +76,16 @@
 }
 
 .genre-list li {
-  padding: 4px 12px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  font-size: var(--step--1);
-  color: var(--text-2);
+  padding: 4px 10px 3px;
+  border-radius: 2px;
+  background: var(--tape);
+  color: #f4f2ec;
+  font-family: var(--font-display);
+  font-stretch: 85%;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .title-hero__actions {
@@ -107,7 +110,7 @@
 }
 
 .title-body__overview p {
-  margin-top: 12px;
+  margin-top: 16px;
   max-width: 68ch;
   color: var(--text-2);
   font-size: 1.0625rem;
@@ -141,7 +144,7 @@
   grid-auto-flow: column;
   grid-auto-columns: clamp(104px, 10vw, 140px);
   gap: 16px;
-  margin: 14px 0 0;
+  margin: 20px 0 0;
   padding: 0 0 8px;
   list-style: none;
   overflow-x: auto;
@@ -151,7 +154,10 @@
 .cast__photo {
   aspect-ratio: 2 / 3;
   overflow: hidden;
-  border-radius: var(--radius-md);
+  border-radius: 2px;
+  border: 5px solid #ece6d6;
+  border-bottom-width: 18px;
+  box-shadow: 0 6px 12px -6px rgb(0 0 0 / 0.8);
   background: var(--surface-2);
   display: grid;
   place-items: center;

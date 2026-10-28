@@ -46,11 +46,24 @@
   max-width: 640px;
 }
 
-.hero__label {
-  font-size: var(--step--1);
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 12px;
+.hero__stickers {
+  height: 64px;
+  margin-bottom: 14px;
+}
+
+.hero__sticker {
+  --rot: -10deg;
+  width: 76px;
+  height: 76px;
+  font-size: 0.9375rem;
+  animation: sticker-on 320ms var(--ease-out);
+}
+
+@keyframes sticker-on {
+  from {
+    transform: rotate(-24deg) scale(1.25);
+    opacity: 0;
+  }
 }
 
 .hero__title {
@@ -88,17 +101,47 @@
   gap: 10px;
 }
 
+.hero__picker {
+  align-items: flex-end;
+}
+
+/* The other featured films, as tapes on the counter */
 .hero__picker button {
   position: relative;
-  width: 96px;
-  aspect-ratio: 16 / 9;
+  width: 112px;
+  aspect-ratio: 16 / 10;
   padding: 0;
   overflow: hidden;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-sm);
+  border: 2px solid #0b0c0a;
+  border-radius: 3px;
   background: var(--surface);
-  opacity: 0.55;
-  transition: opacity 150ms, border-color 150ms;
+  opacity: 0.6;
+  box-shadow: 0 4px 0 #0b0c0a;
+  transition: opacity 150ms, transform 150ms;
+}
+
+.hero__picker button.is-active {
+  transform: translateY(-6px);
+}
+
+.hero__spine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3px 6px 2px;
+  background: var(--tape);
+  color: #f4f2ec;
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 700;
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hero__picker button:hover,
@@ -107,7 +150,7 @@
 }
 
 .hero__picker button.is-active {
-  border-color: var(--text-2);
+  border-color: var(--accent);
 }
 
 .hero__picker img {
@@ -118,8 +161,9 @@
 
 .hero__progress {
   position: absolute;
+  z-index: 1;
   left: 0;
-  bottom: 0;
+  top: 0;
   height: 2px;
   width: 0;
   background: var(--accent);
@@ -142,6 +186,16 @@
 }
 
 @media (max-width: 640px) {
+  .hero__stickers {
+    height: 56px;
+  }
+
+  .hero__sticker {
+    width: 62px;
+    height: 62px;
+    font-size: 0.8125rem;
+  }
+
   .hero {
     min-height: 82svh;
     padding-bottom: 32px;

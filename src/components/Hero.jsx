@@ -70,7 +70,18 @@ export default function Hero({ items, genres = {} }) {
       </div>
 
       <div className="hero__content" key={item.id}>
-        <p className="hero__label">Trending this week</p>
+        <div className="hero__stickers" aria-hidden="true">
+          <span className="sticker hero__sticker" key={item.id}>
+            <span>
+              New
+              <br />
+              this
+              <br />
+              week
+            </span>
+          </span>
+        </div>
+        <p className="visually-hidden">Trending this week</p>
         <h1 className="display hero__title">{titleOf(item)}</h1>
         <p className="meta hero__meta">
           {yearOf(item) && <span>{yearOf(item)}</span>}
@@ -107,6 +118,7 @@ export default function Hero({ items, genres = {} }) {
             >
               <img src={image(f.backdrop_path, "w300")} alt="" loading="lazy" />
               <span className="hero__progress" style={{ animationPlayState: paused ? "paused" : "running" }} />
+              <span className="hero__spine">{titleOf(f)}</span>
             </button>
           ))}
         </div>

@@ -64,11 +64,12 @@ export default function Login() {
 
   return (
     <AuthLayout
+      card={{ email }}
       title="Sign in"
-      subtitle="Pick up your watchlist where you left it."
+      subtitle="Show your card at the counter. Your rental slip is waiting."
       footer={
         <>
-          New to NextFilm? <Link to="/signup" state={location.state}>Create an account</Link>
+          No card yet? <Link to="/signup" state={location.state}>Become a member</Link>
         </>
       }
     >

@@ -1,76 +1,100 @@
 ---
-name: NextFilm — Cinematic
-mode: hybrid (Persuade hero, Operate browsing)
+name: NextFilm — Video Store
+mode: hybrid (Persuade at the counter, Operate in the aisles)
+remember: "Feels made by a person, finds the right film, and is a pleasure to look at."
 colors:
-  bg: "#0c0b0a"
-  surface: "#151311"
-  surface-2: "#1e1b18"
-  line: "#2c2824"
-  line-strong: "#3d3833"
-  text: "#ede8e1"
-  text-2: "#b3aca4"
-  text-3: "#8b847c"
-  accent: "#f0b03f"
-  accent-ink: "#1a1306"
-  danger: "#f2786a"
-  success: "#7fd19a"
+  floor: "#131512"       # shop floor after closing
+  shelf: "#1b1e1a"
+  shelf-2: "#252924"
+  line: "#333831"
+  line-strong: "#454b42"
+  text: "#f1eee6"
+  text-2: "#bdb9ae"
+  text-3: "#928e84"
+  label: "#ffd447"       # price-gun yellow: primary action, highlights
+  label-ink: "#1b1712"
+  sticker: "#c93a1e"     # rental-sticker red: badges, NEW, TOP 10
+  neon: "#ff5b3a"        # sign red: the logo and active states only
+  paper: "#f3ead3"       # index cards (staff picks)
+  paper-ink: "#2a2420"
+  pen: "#2b4f8a"         # biro blue on the cards
+  receipt: "#fbf8f0"
 type:
-  display: "Archivo Variable (width 62–125, weight 100–900)"
+  display: "Archivo Variable, condensed (VHS spines, shelf labels, titles)"
   body: "Instrument Sans Variable"
-  scale: [12, 14, 16, 20, 25, 31, 39, 49, 61, 76]
+  hand: "Kalam — staff-pick cards only"
+  receipt: "IBM Plex Mono — the receipt and price tags only"
 space: 4px base — 4, 8, 12, 16, 24, 32, 48, 64, 96
-radius: { sm: 4, md: 6, lg: 10, pill: 999 }
+radius: { case: 3, card: 2, button: 6, sticker: 999 }
 ---
 
-# NextFilm design system
+# NextFilm design system: the video store
 
-## The scene
+## The idea
 
-People open NextFilm in the evening, on a sofa or at a desk, trying to decide what to watch tonight. The room is dim and the films are the colour. So the interface is a screening room: a warm near-black ground, quiet type, and posters and backdrops doing the talking. Dark comes from that scene, not from "it's a movie site".
+NextFilm is the neighbourhood video store you wish still existed. It's open late, the shelves are full, the clerk has opinions, and the regulars leave handwritten recommendations on the shelves. Every screen is a part of that store:
+
+| Store | In the app |
+| --- | --- |
+| The counter | Home hero: tonight's featured film, with a rental sticker |
+| The shelves | Rails of posters standing like cases, each shelf labelled with label-maker tape |
+| The clerk | NextFilm AI ("Ask the clerk") |
+| Staff-pick cards | Reddit community picks, as handwritten index cards |
+| The aisles | Browse, with filters as aisle signs |
+| Your receipt | The watchlist, printed like a rental slip |
+| Membership card | Sign in / sign up |
+
+If a new screen doesn't map to something in the store, it isn't designed yet.
 
 ## Principles
 
-1. **The film owns the frame.** Backdrops go edge to edge; UI chrome sits on top and gets out of the way.
-2. **One accent, used sparingly.** Projector amber (`--accent`) marks the single primary action on a screen and the active state. Never a gradient, never a glow.
-3. **Type like a title card.** Film titles use Archivo condensed and heavy, in capitals. Everything else is Instrument Sans in sentence case.
-4. **Honest states.** Every list has a loading skeleton shaped like its content, an empty state with a next step, and an error that says what to do.
-5. **No filler.** No invented stats, testimonials, newsletter boxes or dead links.
+1. **Objects, not widgets.** Prefer a real store object (tape, sticker, card, receipt) over a generic UI pattern. But only where the object helps you understand the thing; the poster always wins.
+2. **Tactile, not glossy.** Hard offset shadows that press down when clicked, slight rotations on stickers and cards, paper and tape textures. No glows, gradients on buttons, or glassmorphism.
+3. **Every special font has one job.** Handwriting only on staff-pick cards. Mono only on the receipt and price tags. Everywhere else: Archivo for labels and titles, Instrument Sans for reading.
+4. **Humour in the copy, never in the way.** "Be kind, rewind", "the clerk recommends", "due back: whenever". One line, then get out of the way.
+5. **Honest states.** Loading shows rewinding tape reels or shelf-shaped skeletons, empty states say what to do next, errors say what happened.
 
 ## Colour
 
-| Token | Use | Contrast on `bg` |
-| --- | --- | --- |
-| `--text` `#ede8e1` | body and headings | 16.1:1 |
-| `--text-2` `#b3aca4` | secondary copy, meta | 8.8:1 |
-| `--text-3` `#8b847c` | captions, placeholders | 5.3:1 |
-| `--accent` `#f0b03f` | primary button fill, focus ring, active nav, ratings | 10.3:1 |
-| `--accent-ink` `#1a1306` | text on accent | 9.6:1 on accent |
+The floor is a near-black with a little green in it (old carpet, fluorescent tubes switched off). Two signage colours carry the brand: **price-gun yellow** for the one primary action and highlights, **sticker red** for badges. **Paper** and **receipt** are surfaces for objects, never for whole pages.
 
-Neutrals are warm (stone), never blue-grey. Surfaces step up in lightness (`bg` → `surface` → `surface-2`) to show elevation; shadows are reserved for floating layers (menus, dialogs) and always have a y-offset.
+| Pair | Contrast |
+| --- | --- |
+| `text` on `floor` | 15.8:1 |
+| `text-2` on `floor` | 9.4:1 |
+| `text-3` on `floor` | 5.6:1 |
+| `label-ink` on `label` | 12.5:1 |
+| white on `sticker` | 5.1:1 |
+| `paper-ink` on `paper` | 12.8:1 |
+| `pen` on `paper` | 6.8:1 |
 
 ## Typography
 
-- **Display** — Archivo, `font-stretch: 75%`, weight 800, uppercase, `line-height: 0.95`, `letter-spacing: 0.005em`. Hero titles `clamp(2.5rem, 7vw, 5.5rem)`; title-page heading `clamp(2.25rem, 5vw, 4.25rem)`.
-- **Section headings** — Archivo, normal width, weight 700, 25px (20px mobile), sentence case.
-- **Body** — Instrument Sans 16px / 1.55. Meta lines 14px with `font-variant-numeric: tabular-nums`.
-- `text-wrap: balance` on headings, `pretty` on paragraphs. Curly quotes and a real ellipsis (…).
-
-## Layout
-
-- Page gutter `clamp(16px, 4vw, 56px)`; max content width 1440px for text blocks, rails run edge to edge.
-- Rails: horizontal scroll with `scroll-snap`, poster width `clamp(128px, 14vw, 200px)`, 2:3 aspect, 6px radius. Prev/next buttons on pointer devices, swipe on touch.
-- Breakpoints: 640, 900, 1200.
-- Touch targets ≥ 44px.
-
-## Motion
-
-One authored moment: the hero backdrop cross-fades and settles (scale 1.04 → 1) when the featured film changes, 700ms ease-out. Everything else is instant or a 150ms colour/opacity change. Content is never hidden behind an entrance animation. `prefers-reduced-motion` removes the scale and stops hero auto-advance.
+- **Titles and labels:** Archivo, `font-stretch: 75%`, weight 800, uppercase. Shelf labels sit on black label-maker tape with slightly embossed white letters.
+- **Section headings:** label-maker tape (`.tape`), rotated no more than 1.5°.
+- **Body:** Instrument Sans 16px / 1.55.
+- **Staff-pick cards:** Kalam 18–20px in biro blue on ruled paper.
+- **Receipt and price tags:** IBM Plex Mono, uppercase, tabular numbers.
 
 ## Components
 
-- **Button** — primary (accent fill, accent-ink text), secondary (surface-2 fill, line border), ghost (text only). 44px tall, 6px radius, icon + label.
-- **Poster card** — poster, then title and `year · ★ rating` under it. Hover brightens the poster; focus shows a 2px accent ring offset 3px.
-- **Top 10 rail** — oversized outlined numerals in Archivo beside each poster.
-- **Ask bar** — the AI search: one large field, a submit button, and example prompts as chips.
-- **Dialog** — native `<dialog>`, Esc to close, focus returns to the trigger.
-- **Toast** — bottom-centre, `aria-live="polite"`, auto-dismiss after 3.5s.
+- **Push button**: 6px radius, 2px border in a darker shade, `box-shadow: 0 4px 0` of that shade. On hover it lifts 1px, on press it drops 4px and loses the shadow. Primary is yellow, secondary is shelf grey. (Pattern inspired by the 3D buttons on uiverse.io, MIT; written for this system.)
+- **Rocker toggle**: the Films / Series switch, a two-position switch with a sliding thumb (inspired by uiverse.io switches).
+- **Tape**: black label-maker strip, white embossed caps, notched ends.
+- **Sticker**: round, rotated −8° to 8°, red or yellow, used for NEW, TOP 10 rank and ratings.
+- **Case**: a poster card with a darker 5px spine on the left and a faint plastic sheen at the top. It stands on a shelf edge that casts a soft shadow.
+- **Staff-pick card**: ruled index card, a strip of masking tape at the top, handwritten note, attribution in small print.
+- **Receipt**: off-white slip, zig-zag torn edges, dashed rules, mono type.
+- **Reels loader**: two cassette reels turning ("Rewinding…"). With reduced motion it's a still frame.
+
+## Motion
+
+Physical and short: buttons press (80ms), stickers settle when the hero changes (300ms), reels turn while loading. The hero backdrop cross-fades (700ms). Content is never hidden behind an animation, and `prefers-reduced-motion` turns all of it off.
+
+## Layout
+
+Page gutter `clamp(16px, 4vw, 56px)`. Shelves run edge to edge; reading text stays under 70ch. Touch targets are at least 44px. Mobile works from 320px.
+
+## Credits
+
+Interaction patterns (push buttons, rocker switches, loaders) are inspired by the community components on [uiverse.io](https://uiverse.io/elements) (MIT licence) and written from scratch to fit this system.

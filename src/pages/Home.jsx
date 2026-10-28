@@ -12,10 +12,10 @@ import { KeyRound } from "lucide-react";
 import "./Home.css";
 
 const RAILS = [
-  { id: "trending", title: "Top 10 films this week", load: () => tmdb.trending("movie"), ranked: true },
-  { id: "trending-series", title: "Series everyone’s watching", load: () => tmdb.trending("tv"), href: "/browse?type=tv" },
-  { id: "top-rated", title: "Highest rated films", load: () => tmdb.topRated("movie"), href: "/browse?sort=rating" },
-  { id: "top-rated-series", title: "Highest rated series", load: () => tmdb.topRated("tv"), href: "/browse?type=tv&sort=rating" },
+  { id: "trending", title: "Top 10 rentals this week", load: () => tmdb.trending("movie"), ranked: true },
+  { id: "trending-series", title: "Series everyone’s bingeing", load: () => tmdb.trending("tv"), href: "/browse?type=tv" },
+  { id: "top-rated", title: "Top shelf: highest rated", load: () => tmdb.topRated("movie"), href: "/browse?sort=rating" },
+  { id: "top-rated-series", title: "Top shelf: series", load: () => tmdb.topRated("tv"), href: "/browse?type=tv&sort=rating" },
   { id: "action", title: "Action", load: () => tmdb.byGenre(GENRES.action), href: `/browse?genres=${GENRES.action}` },
   { id: "comedy", title: "Comedy", load: () => tmdb.byGenre(GENRES.comedy), href: `/browse?genres=${GENRES.comedy}` },
   { id: "scifi", title: "Science fiction", load: () => tmdb.byGenre(GENRES.scifi), href: `/browse?genres=${GENRES.scifi}` },

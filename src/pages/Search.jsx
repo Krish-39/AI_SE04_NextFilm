@@ -76,14 +76,14 @@ export default function Search() {
           <h1 className="search-page__title">
             {ai ? (
               <>
-                <Sparkles size={20} aria-hidden="true" className="search-page__ai-icon" /> AI picks for “{q}”
+                <Sparkles size={20} aria-hidden="true" className="search-page__ai-icon" /> The clerk’s picks for “{q}”
               </>
             ) : (
               <>Results for “{q}”</>
             )}
           </h1>
           <button type="button" className="btn btn-ghost" onClick={() => run(q, ai ? "0" : "1")}>
-            {ai ? "Search titles instead" : "Ask NextFilm AI instead"}
+            {ai ? "Search titles instead" : "Ask the clerk instead"}
           </button>
         </div>
       )}
@@ -105,7 +105,7 @@ export default function Search() {
               <span className="poster-badge poster-badge--reddit">
                 <RedditIcon size={11} /> Reddit
               </span>
-              also recommended by the Reddit community
+              the regulars on Reddit recommend it too
             </p>
           )}
         </div>
@@ -120,7 +120,7 @@ export default function Search() {
       {q && error && (
         <StateMessage
           icon={SearchX}
-          title={ai ? "NextFilm AI isn’t available right now" : "Search failed"}
+          title={ai ? "The clerk’s on a break" : "Search failed"}
           action={
             ai ? (
               <button type="button" className="btn btn-primary" onClick={() => run(q, "0")}>
@@ -134,7 +134,7 @@ export default function Search() {
           }
         >
           {ai
-            ? "The recommendation service didn’t respond. You can still search by title."
+            ? "NextFilm AI didn’t answer this time. You can still look titles up yourself."
             : "Check your connection and try again."}
         </StateMessage>
       )}
@@ -181,19 +181,21 @@ export default function Search() {
       )}
 
       {ai && data?.threads?.length > 0 && (
-        <section className="threads" aria-labelledby="threads-title">
-          <h2 className="threads__title" id="threads-title">
-            <RedditIcon size={16} /> Community threads we read
+        <section className="staff-picks" aria-labelledby="threads-title">
+          <h2 className="section-title tape" id="threads-title">
+            Notes from the regulars
           </h2>
-          <ul>
-            {data.threads.map((t) => (
-              <li key={t.id}>
-                <a href={t.permalink} target="_blank" rel="noreferrer">
-                  <span className="threads__post">{t.title}</span>
-                  <span className="threads__meta">
-                    r/{t.subreddit} · {t.score.toLocaleString()} upvotes · {t.comments.toLocaleString()} comments
+          <p className="staff-picks__lede">The Reddit threads the clerk read before picking. Tap a card to open it.</p>
+          <ul className="staff-picks__list">
+            {data.threads.map((t, i) => (
+              <li key={t.id} style={{ "--rot": `${[-1.4, 0.9, -0.5][i % 3]}deg` }}>
+                <a href={t.permalink} target="_blank" rel="noreferrer" className="index-card staff-card">
+                  <span className="hand staff-card__note">“{t.title}”</span>
+                  <span className="staff-card__by">
+                    <RedditIcon size={12} /> r/{t.subreddit} · {t.score.toLocaleString()} upvotes ·{" "}
+                    {t.comments.toLocaleString()} comments
                   </span>
-                  <ExternalLink size={14} aria-hidden="true" />
+                  <ExternalLink size={14} aria-hidden="true" className="staff-card__out" />
                 </a>
               </li>
             ))}

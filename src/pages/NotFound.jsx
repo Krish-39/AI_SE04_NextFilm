@@ -10,14 +10,14 @@ export default function NotFound() {
     <main id="main" className="page">
       <StateMessage
         icon={Clapperboard}
-        title="This scene was cut"
+        title="Someone didn’t rewind"
         action={
           <Link to="/" className="btn btn-primary">
-            Back to home
+            Back to the counter
           </Link>
         }
       >
-        The page you’re looking for doesn’t exist.
+        This case is empty: the page you’re looking for isn’t on the shelf.
       </StateMessage>
     </main>
   );
