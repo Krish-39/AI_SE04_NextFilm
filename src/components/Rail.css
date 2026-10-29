@@ -1,0 +1,98 @@
+.rail {
+  --poster-w: clamp(132px, 14vw, 196px);
+  margin-top: 48px;
+}
+
+.rail__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 var(--gutter);
+  margin-bottom: 18px;
+}
+
+.rail__controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rail__subtitle {
+  margin-top: 10px;
+  color: var(--text-3);
+  font-size: var(--step--1);
+}
+
+.rail__all {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  color: var(--text-2);
+  font-family: var(--font-display);
+  font-stretch: 85%;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+}
+
+.rail__all:hover {
+  color: var(--text);
+}
+
+.rail__controls .icon-btn:disabled {
+  opacity: 0.3;
+  background: transparent;
+}
+
+@media (hover: none) {
+  .rail__controls .icon-btn {
+    display: none;
+  }
+}
+
+.rail__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--poster-w);
+  gap: 16px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  padding: 14px var(--gutter) 12px;
+  scrollbar-width: none;
+  /* The shelf runs the full width, even when the shelf isn't full. */
+  background:
+    linear-gradient(to bottom, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0)) 0 calc(14px + var(--poster-w) * 1.5 + 9px) / 100% 10px no-repeat local,
+    linear-gradient(to bottom, #4a4f45 0 2px, #2c302a 2px 100%) 0 calc(14px + var(--poster-w) * 1.5) / 100% 9px no-repeat local;
+}
+
+.rail__track .poster-card__case::after {
+  display: none;
+}
+
+.rail__track::-webkit-scrollbar {
+  display: none;
+}
+
+.rail__track > * {
+  scroll-snap-align: start;
+}
+
+
+.rail__error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 var(--gutter);
+  padding: 20px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  color: var(--text-2);
+}
+

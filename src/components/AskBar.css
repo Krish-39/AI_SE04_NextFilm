@@ -1,0 +1,114 @@
+.ask {
+  margin: 8px var(--gutter) 0;
+  padding: clamp(24px, 4vw, 40px);
+  border: 2px solid #0b0c0a;
+  border-radius: 6px;
+  background:
+    linear-gradient(to bottom, rgb(255 255 255 / 0.03), rgb(255 255 255 / 0)),
+    var(--surface);
+  box-shadow: 0 6px 0 #0b0c0a;
+}
+
+.ask__inner {
+  max-width: 880px;
+}
+
+.ask__lede {
+  margin-top: 14px;
+  max-width: 60ch;
+  color: var(--text-2);
+  font-size: 1.0625rem;
+}
+
+.ask__form {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+/* The order pad on the counter */
+.ask__input {
+  min-height: 56px;
+  padding: 0 16px;
+  border: 2px solid #0b0c0a;
+  border-radius: 3px;
+  background:
+    linear-gradient(to bottom, transparent 0 calc(100% - 12px), var(--paper-line) calc(100% - 12px) calc(100% - 11px), transparent calc(100% - 11px)),
+    var(--paper);
+  color: var(--paper-ink);
+  font-size: 1.125rem;
+  box-shadow: inset 0 2px 0 rgb(0 0 0 / 0.08);
+}
+
+.ask__input::placeholder {
+  color: var(--paper-ink-2);
+  font-family: var(--font-hand);
+  font-size: 1.1875rem;
+}
+
+.ask__input:hover {
+  border-color: #0b0c0a;
+}
+
+.ask__input:focus-visible {
+  border-color: var(--accent-deep);
+  box-shadow: 0 0 0 3px var(--accent);
+}
+
+.ask__submit {
+  min-height: 56px;
+  padding: 0 26px;
+  font-size: 1.0625rem;
+}
+
+.ask__try {
+  margin-top: 22px;
+  color: var(--text-3);
+  font-size: var(--step--1);
+}
+
+.ask__examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Example prompts as little paper slips */
+.ask__examples button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 1px;
+  background: var(--paper);
+  color: var(--pen);
+  font-family: var(--font-hand);
+  font-size: 1.0625rem;
+  line-height: 1;
+  box-shadow: 0 3px 0 rgb(0 0 0 / 0.45);
+  transition: transform 120ms ease-out;
+}
+
+.ask__examples li:nth-child(odd) button {
+  rotate: -1.2deg;
+}
+
+.ask__examples li:nth-child(even) button {
+  rotate: 1deg;
+}
+
+.ask__examples button:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+  .ask__form {
+    flex-direction: column;
+  }
+
+  .ask__examples button {
+    min-height: 44px;
+  }
+}

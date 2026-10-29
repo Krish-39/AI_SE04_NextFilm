@@ -1,0 +1,226 @@
+.hero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(560px, 88svh, 860px);
+  padding: calc(var(--header-h) + 40px) var(--gutter) clamp(40px, 8vh, 88px);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--surface);
+}
+
+.hero__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 700ms var(--ease-out), transform 1400ms var(--ease-out);
+}
+
+.hero__media img.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Scrims: darken the left for the copy and the bottom so the page continues */
+.hero__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgb(12 11 10 / 0.92) 0%, rgb(12 11 10 / 0.7) 32%, rgb(12 11 10 / 0) 68%),
+    linear-gradient(to top, var(--bg) 0%, rgb(12 11 10 / 0.6) 22%, rgb(12 11 10 / 0) 50%);
+}
+
+.hero__content {
+  max-width: 640px;
+}
+
+.hero__stickers {
+  height: 64px;
+  margin-bottom: 14px;
+}
+
+.hero__sticker {
+  --rot: -10deg;
+  width: 76px;
+  height: 76px;
+  font-size: 0.9375rem;
+  animation: sticker-on 320ms var(--ease-out);
+}
+
+@keyframes sticker-on {
+  from {
+    transform: rotate(-24deg) scale(1.25);
+    opacity: 0;
+  }
+}
+
+.hero__title {
+  font-size: clamp(2.75rem, 7vw, 5.5rem);
+}
+
+.hero__meta {
+  margin-top: 16px;
+  font-size: var(--step-0);
+}
+
+.hero__overview {
+  margin-top: 16px;
+  max-width: 56ch;
+  color: var(--text-2);
+  font-size: 1.0625rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.hero__picker {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(40px, 8vh, 88px);
+  display: flex;
+  gap: 10px;
+}
+
+.hero__picker {
+  align-items: flex-end;
+}
+
+/* The other featured films, as tapes on the counter */
+.hero__picker button {
+  position: relative;
+  width: 112px;
+  aspect-ratio: 16 / 10;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid #0b0c0a;
+  border-radius: 3px;
+  background: var(--surface);
+  opacity: 0.6;
+  box-shadow: 0 4px 0 #0b0c0a;
+  transition: opacity 150ms, transform 150ms;
+}
+
+.hero__picker button.is-active {
+  transform: translateY(-6px);
+}
+
+.hero__spine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3px 6px 2px;
+  background: var(--tape);
+  color: #f4f2ec;
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 700;
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero__picker button:hover,
+.hero__picker button.is-active {
+  opacity: 1;
+}
+
+.hero__picker button.is-active {
+  border-color: var(--accent);
+}
+
+.hero__picker img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero__progress {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+}
+
+.hero__picker button.is-active .hero__progress {
+  animation: hero-progress 9000ms linear forwards;
+}
+
+@keyframes hero-progress {
+  to {
+    width: 100%;
+  }
+}
+
+@media (max-width: 1100px) {
+  .hero__picker {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero__stickers {
+    height: 56px;
+  }
+
+  .hero__sticker {
+    width: 62px;
+    height: 62px;
+    font-size: 0.8125rem;
+  }
+
+  .hero {
+    min-height: 82svh;
+    padding-bottom: 32px;
+  }
+
+  .hero__media::after {
+    background: linear-gradient(to top, var(--bg) 0%, rgb(12 11 10 / 0.85) 38%, rgb(12 11 10 / 0.2) 75%, rgb(12 11 10 / 0.5) 100%);
+  }
+
+  .hero__overview {
+    -webkit-line-clamp: 2;
+    font-size: var(--step-0);
+  }
+
+  .hero__actions .btn-ghost {
+    display: none;
+  }
+
+  .hero__actions .btn {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__media img {
+    transform: none;
+  }
+}

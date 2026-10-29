@@ -1,0 +1,276 @@
+.auth {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 520px);
+  min-height: 100svh;
+}
+
+.auth__wall {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 10px;
+  overflow: hidden;
+  align-content: center;
+  background: var(--surface);
+}
+
+.auth__wall img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 3px;
+  filter: saturate(0.75) brightness(0.45);
+}
+
+.auth__wall img:nth-child(4n + 2),
+.auth__wall img:nth-child(4n + 4) {
+  transform: translateY(-14%);
+}
+
+.auth__wall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgb(12 11 10 / 0) 55%, var(--bg) 100%);
+}
+
+.auth__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px clamp(24px, 5vw, 64px);
+}
+
+.auth__logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: none;
+  margin-bottom: 40px;
+  align-self: flex-start;
+}
+
+.auth__title {
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+}
+
+.auth__subtitle {
+  margin-top: 10px;
+  color: var(--text-2);
+}
+
+.auth__form {
+  display: grid;
+  gap: 18px;
+  margin-top: 32px;
+}
+
+.auth__form .btn {
+  width: 100%;
+  min-height: 48px;
+}
+
+.auth__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-block: -12px -6px;
+}
+
+.auth__link-btn {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font-size: var(--step--1);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.auth__link-btn:hover {
+  color: var(--text);
+}
+
+.auth__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-3);
+  font-size: var(--step--1);
+}
+
+.auth__divider::before,
+.auth__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.auth__alert {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--step--1);
+  border: 1px solid;
+}
+
+.auth__alert--error {
+  color: #ffd2cc;
+  border-color: rgb(242 120 106 / 0.5);
+  background: rgb(242 120 106 / 0.08);
+}
+
+.auth__alert--success {
+  color: #d4f4de;
+  border-color: rgb(127 209 154 / 0.5);
+  background: rgb(127 209 154 / 0.08);
+}
+
+.auth__footer {
+  margin-top: 28px;
+  color: var(--text-2);
+  font-size: var(--step--1);
+}
+
+.auth__footer a {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.auth__hint {
+  font-size: 0.8125rem;
+  color: var(--text-3);
+}
+
+@media (max-width: 900px) {
+  .auth {
+    grid-template-columns: 1fr;
+  }
+
+  .auth__wall {
+    display: none;
+  }
+
+  .auth__panel {
+    padding-top: 32px;
+    justify-content: flex-start;
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+
+/* Membership card */
+.member-card {
+  width: min(380px, 100%);
+  aspect-ratio: 1.586;
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(135deg, rgb(255 255 255 / 0.04) 0 2px, transparent 2px 7px),
+    #20402f;
+  color: #f4f2ec;
+  box-shadow: 0 24px 40px -18px rgb(0 0 0 / 0.95), inset 0 1px 0 rgb(255 255 255 / 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.member-card__band {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--neon);
+  color: #1a0b06;
+  font-family: var(--font-display);
+  font-stretch: 80%;
+  font-weight: 900;
+  font-size: 1.125rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.member-card__band span:last-child {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+}
+
+.member-card__body {
+  flex: 1;
+  display: grid;
+  align-content: start;
+  padding: 12px 16px 10px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.member-card__label {
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  opacity: 0.65;
+}
+
+.member-card__no,
+.member-card__name {
+  margin-bottom: 6px;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.5), 0 -1px 0 rgb(255 255 255 / 0.2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-card__sign {
+  height: 30px;
+  margin-top: 2px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(90deg, #f3ead3 0 10px, #e9dfc4 10px 20px);
+  color: var(--pen);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.member-card__sig {
+  font-family: var(--font-hand);
+  font-size: 1.125rem;
+  text-transform: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.member-card__fine {
+  margin-top: 6px;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+.member-card--wall {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  rotate: -5deg;
+}
+
+.member-card--panel {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .member-card--panel {
+    display: flex;
+    width: min(300px, 100%);
+    margin-bottom: 28px;
+    rotate: -2deg;
+  }
+}
+
+.member-card--panel .member-card__fine {
+  display: none;
+}

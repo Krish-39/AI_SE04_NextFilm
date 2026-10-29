@@ -15,10 +15,26 @@ The two are independent: the live app gets its suggestions from Gemini and TMDb,
 
 ## Features
 
-- Trending, top-rated and genre rows from TMDb, plus title details, cast, trailers and similar movies
-- Search: short queries go straight to TMDb; longer descriptions ("a slow, sad space movie") go to Gemini, which suggests five titles that are then looked up on TMDb
-- Email/password and Google sign-in with Firebase Authentication
-- A per-user watchlist stored in Firestore (`users/{uid}/watchlist`)
+- **Home**: a full-bleed featured carousel of this week's trending films, the AI "ask" box, a **Picked for you** row built from your watchlist, a Top 10 rail, trending and top-rated series, and genre rails with "See all" links
+- **Browse** (`/browse`): filter films or series by genres (match all), release year or decade, minimum rating, length, original language and streaming service in your country, sorted by popularity, rating, date or title. Filters live in the URL, so any view can be bookmarked or shared; on phones they open in a bottom sheet with a live result count
+- **Ask NextFilm AI**: describe a mood or plot ("a slow, sad space movie") and Gemini picks five films or series. It also reads matching threads from Reddit recommendation communities (r/MovieSuggestions, r/NetflixBestOf, …) and adds what people there recommend, tagged **Reddit**, with links to the threads
+- **Search**: short queries search titles across films and series; longer ones go to the AI. Results can be narrowed to films or series
+- **Title pages** for films (`/movie/:id`) and series (`/tv/:id`): backdrop, poster, runtime or seasons, genres, director or creators, cast, similar titles, the trailer in an in-page player, **Where to watch** (stream / free / rent / buy per country, data by JustWatch), and **Community buzz** (a 0–100 Reddit buzz score with the top threads)
+- **Watchlist** for films and series, stored per user in Firestore (`users/{uid}/watchlist`), with Films / Series tabs and sorting
+- Email/password and Google sign-in, password reset, and friendly error messages
+- Fully responsive down to 320px, keyboard accessible (skip link, focus rings, labelled controls), and respects reduced-motion settings
+
+### How "Picked for you" works
+
+A small hybrid recommender in `src/lib/forYou.js`: TMDB's recommendations for your four most recent saves (collaborative signal), plus popular titles in the genres you save most (content signal), ranked together with rating as a tie-breaker. Titles you already saved are never suggested.
+
+### Reddit
+
+Reddit blocks requests made directly from browsers, so searches go through the `communitySearch` Cloud Function in production and through a dev-server proxy during `npm run dev`. If Reddit is slow or rate-limits, the app carries on without it: AI search waits at most 3.5 seconds, and title pages fall back to a "See all discussions on Reddit" link. Post titles are sent to the Cloud Function, which asks Gemini to extract the titles people are recommending; the browser never sees the Gemini key.
+
+## Design
+
+The look and its rules (palette, type, spacing, motion, components) are written down in [`DESIGN.md`](DESIGN.md). In short: a warm near-black screening room where posters and backdrops carry the colour, Archivo for title cards, Instrument Sans for everything else, and one projector-amber accent.
 
 ## How the AI search stays safe
 
@@ -26,7 +42,7 @@ The Gemini key never reaches the browser. `src/services/gemini.js` calls the `re
 
 ## Run the web app
 
-Prerequisites: Node.js 20 or later and npm.
+Prerequisites: Node.js 20.19 or later and npm.
 
 ```bash
 git clone https://github.com/Krish-39/AI_SE04_NextFilm.git
@@ -38,24 +54,47 @@ npm run dev
 
 Open <http://localhost:5173>. Browsing and direct search work with just the TMDb key; AI search needs the Cloud Function deployed.
 
-### Deploy the Cloud Function
+### Deploy the Cloud Functions
 
-Cloud Functions need the Firebase Blaze plan. From the repository root:
+Two functions live in `functions/`: `recommendMovies` (Gemini picks) and `communitySearch` (Reddit search; Reddit blocks requests made straight from browsers, so the site asks this function). Cloud Functions need the Firebase Blaze plan. From the repository root:
 
 ```bash
 npm install -g firebase-tools
 firebase login
 cd functions && npm ci && cd ..
 firebase functions:secrets:set GEMINI_API_KEY
+firebase functions:secrets:set REDDIT_CLIENT_ID      # see below
+firebase functions:secrets:set REDDIT_CLIENT_SECRET
 firebase deploy --only functions
 ```
 
+**Reddit credentials:** sign in to Reddit, open <https://www.reddit.com/prefs/apps>, choose **create another app**, pick **script**, use any redirect URL (e.g. `http://localhost`), and copy the id under the app name and the secret. With them, the function uses Reddit's official API. Without them (set both to `none`) it falls back to Reddit's public JSON, which Reddit may rate-limit or block from Google's servers.
+
+During `npm run dev`, Reddit requests go through Vite's `/reddit-api` proxy on your own machine instead, so the community features work locally without deploying anything.
+
+### Database rules
+
+The watchlist lives in Firestore at `users/{uid}/watchlist`. `firestore.rules` lets each signed-in user read and change only their own list. If saving says *permission denied*, the project's rules are out of date (Firebase "test mode" rules expire after 30 days). Publish these rules either way:
+
+- **Console:** Firebase console → Firestore Database → Rules → paste `firestore.rules` → Publish
+- **CLI:** `firebase deploy --only firestore:rules`
+
 The project is set in `.firebaserc` (`nextfilm-ai`), the same project `src/firebase.js` connects to.
+
+### Deploy the site
+
+```bash
+npm run build
+firebase deploy --only hosting
+```
+
+`firebase.json` serves `dist/` with a single-page-app rewrite, so deep links like `/movie/603` work on refresh. If your hosting site lives in a different Firebase project from the one in `.firebaserc`, add `--project <id>`.
 
 ### Checks
 
 ```bash
 npm run lint
+npm test            # filters, recommender, Reddit, sorting
 npm run build
 cd functions && npm test
 ```
@@ -85,7 +124,6 @@ Dataset: F. Maxwell Harper and Joseph A. Konstan. 2015. *The MovieLens Datasets:
 
 - The Python models are not served to the web app.
 - There is no offline evaluation (precision@k, RMSE) of the recommenders yet.
-- `src/pages/Profile.jsx` exists but is not routed.
 
 ## License
 
