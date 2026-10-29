@@ -34,7 +34,7 @@ Reddit blocks requests made directly from browsers, so searches go through the `
 
 ## Design
 
-The look and its rules (palette, type, spacing, motion, components) are written down in [`DESIGN.md`](DESIGN.md). In short: a warm near-black screening room where posters and backdrops carry the colour, Archivo for title cards, Instrument Sans for everything else, and one projector-amber accent.
+The look and its rules (palette, type, spacing, motion, components) are written down in [`DESIGN.md`](DESIGN.md). In short: a late-night video rental store. Shelves with label-maker tape, yellow price-label buttons, red "staff pick" stickers, handwritten index cards for Reddit picks, and your watchlist printed as a rental receipt. Archivo for labels and titles, Instrument Sans for reading, Kalam only on the staff-pick cards, IBM Plex Mono only on the receipt.
 
 ## How the AI search stays safe
 
