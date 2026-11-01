@@ -68,7 +68,7 @@ firebase functions:secrets:set REDDIT_CLIENT_SECRET
 firebase deploy --only functions
 ```
 
-**Reddit credentials:** sign in to Reddit, open <https://www.reddit.com/prefs/apps>, choose **create another app**, pick **script**, use any redirect URL (e.g. `http://localhost`), and copy the id under the app name and the secret. With them, the function uses Reddit's official API. Without them (set both to `none`) it falls back to Reddit's public JSON, which Reddit may rate-limit or block from Google's servers.
+**Reddit credentials (optional):** since November 2025 Reddit approves new API apps by hand under its [Responsible Builder Policy](https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy). Register a **script** app at <https://www.reddit.com/prefs/apps> (any redirect URL, e.g. `http://localhost:8080`), request access through the form linked from the [Data API Wiki](https://support.reddithelp.com/hc/en-us/articles/14945211791892-Reddit-Data-API-Wiki), and once approved set the id under the app name and the secret. Until then set both to `none`: the function falls back to Reddit's public JSON, which Reddit may rate-limit or block from Google's servers, in which case title pages show a "See all discussions on Reddit" link instead.
 
 During `npm run dev`, Reddit requests go through Vite's `/reddit-api` proxy on your own machine instead, so the community features work locally without deploying anything.
 
