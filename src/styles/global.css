@@ -385,7 +385,8 @@ input {
   color: var(--text);
 }
 
-.segmented button[aria-selected="true"] {
+.segmented button[aria-selected="true"],
+.segmented button[aria-checked="true"] {
   background: var(--accent);
   color: var(--accent-ink);
   box-shadow: 0 2px 0 var(--accent-deep);

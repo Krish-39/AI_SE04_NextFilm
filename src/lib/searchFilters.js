@@ -13,7 +13,7 @@ export const SEARCH_SORTS = [
 ];
 
 // Film genre -> the matching TV genre ids, so one genre list covers both.
-const TV_EQUIVALENT = {
+export const TV_EQUIVALENT = {
   28: [10759], 12: [10759], 878: [10765], 14: [10765], 10752: [10768], 27: [], 53: [9648], 10749: [], 36: [], 10402: [],
 };
 

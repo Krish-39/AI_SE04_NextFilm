@@ -112,3 +112,72 @@
     min-height: 44px;
   }
 }
+
+/* Narrow-it-down controls under the order pad */
+.ask__options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px 18px;
+  margin: 18px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.ask__kind button {
+  min-width: 0;
+}
+
+.ask__option {
+  display: grid;
+  gap: 6px;
+  min-width: 150px;
+}
+
+.ask__option span {
+  color: var(--text-3);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ask__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.ask__check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .ask__options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ask__kind {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+  }
+
+  .ask__kind button {
+    flex: 1;
+  }
+
+  .ask__option {
+    min-width: 0;
+  }
+
+  .ask__check {
+    grid-column: 1 / -1;
+  }
+}

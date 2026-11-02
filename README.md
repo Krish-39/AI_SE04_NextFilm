@@ -17,11 +17,12 @@ The two are independent: the live app gets its suggestions from TMDb, Reddit and
 
 - **Home**: a full-bleed featured carousel of this week's trending films, the "ask" box, a **Picked for you** row built from your watchlist, a Top 10 rail, trending and top-rated series, and genre rails with "See all" links
 - **Browse** (`/browse`): filter films or series by genres (match all), release year or decade, minimum rating, length, original language and streaming service in your country, sorted by popularity, rating, date or title. Filters live in the URL, so any view can be bookmarked or shared; on phones they open in a bottom sheet with a live result count
-- **Search** (`/search`): type a title, or describe what you want ("a sad space movie", "funny Korean series from the 2010s"). A description gives three things:
-  - **Recommended on Reddit**: titles real people suggested most in Reddit threads asking for the same thing, counted from their upvoted replies, with links to the threads
-  - **More matches**: the request read for moods, genres, decades, languages and topics and run against TMDb (this works with no AI at all), plus up to five Gemini picks marked **Clerk's pick**
-  - The page shows what it understood ("Looking for Films · Drama · Science fiction · "space""), so results are explainable
-  - Every result can be filtered by type, genres, years, rating and language, and sorted; filters live in the URL
+- **Search** (`/search`) and **Ask the clerk** (home page): type a title, or describe what you want ("a sad space movie", "funny Korean series from the 2010s", "something like Knives Out"). Descriptions go through the clerk's pipeline (`src/lib/clerk.js`):
+  1. **Understand**: moods, genres, decades, languages and topics are read from the text, and "like <title>" is looked up on TMDb. Text that isn't a film or TV request ("chicken masala", "mango rice with banana") is rejected with a clear message and no results; an exact long title ("the lord of the rings") is searched as a title instead
+  2. **Gather**: TMDb discover with your filters merged in, titles similar to the reference, up to five Gemini picks that are told to respect the same filters, and **Recommended on Reddit**: titles real people suggested most in matching Reddit threads, counted from their upvoted replies
+  3. **Rank**: titles several sources agree on come first, then genre fit and rating; obscure entries with almost no votes are dropped
+  4. **Filter**: type, genres, years, rating and language are applied again to every source, so nothing outside them slips through. The home page's "Ask the clerk" box sets the same filters (films or series, decade, language, well rated only)
+  - The page shows what it understood ("Looking for Series · Comedy · 2010–2019 · Korean"), and badges say where a pick came from (**Reddit · 7 recs**, **Clerk's pick**, **Like Knives Out**)
 - **Title pages** for films (`/movie/:id`) and series (`/tv/:id`): backdrop, poster, runtime or seasons, genres, director or creators, cast, similar titles, the trailer in an in-page player, **Where to watch** (stream / free / rent / buy per country, data by JustWatch), and **Community buzz** (a 0–100 Reddit buzz score with the top threads)
 - **Watchlist** for films and series, stored per user in Firestore (`users/{uid}/watchlist`), with Films / Series tabs and sorting
 - Email/password and Google sign-in, password reset, and friendly error messages

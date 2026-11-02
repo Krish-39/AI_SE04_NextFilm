@@ -172,3 +172,13 @@
   font-size: var(--step--1);
 }
 .search-page__toolbar .browse__sort { margin-left: auto; }
+
+.search-page__examples {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

@@ -8,9 +8,9 @@ async function client(apiKey) {
   return new GoogleGenAI({ apiKey });
 }
 
-export async function recommend(prompt, apiKey) {
+export async function recommend(prompt, apiKey, constraints = {}) {
   const ai = await client(apiKey);
-  const r = await ai.models.generateContent({ model: MODEL, contents: buildPrompt(prompt), config: { maxOutputTokens: 200 } });
+  const r = await ai.models.generateContent({ model: MODEL, contents: buildPrompt(prompt, constraints), config: { maxOutputTokens: 200 } });
   return parseTitles(r.text);
 }
 

@@ -8,8 +8,9 @@ import RedditIcon from "../components/RedditIcon";
 import StateMessage from "../components/StateMessage";
 import Tabs from "../components/Tabs";
 import { getRecommendations } from "../services/gemini";
-import { genreName } from "../lib/filters";
-import { moodSearch, parseRequest } from "../lib/moodSearch";
+import { genreName, LANGUAGES } from "../lib/filters";
+import { cleanTitleResults, constraintsFor, gather, rank, understand } from "../lib/clerk";
+import { isFilmRequest, parseRequest, withFilters } from "../lib/moodSearch";
 import { communityPicks } from "../lib/reddit";
 import {
   applySearchFilters,
@@ -22,12 +23,13 @@ import {
 } from "../lib/searchFilters";
 import { useAsync } from "../lib/useAsync";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
-import { tmdb } from "../lib/tmdb";
+import { titleOf, tmdb } from "../lib/tmdb";
 import "./Browse.css";
 import "./Search.css";
 
-// Short queries are probably titles; longer ones read like descriptions.
-const looksLikeDescription = (q) => q.trim().split(/\s+/).length > 3;
+// A query is a description when it's long, or when it already says what kind
+// of thing it wants ("sad space movie"). Otherwise it's probably a title.
+const looksLikeDescription = (q) => q.trim().split(/\s+/).length > 3 || isFilmRequest(parseRequest(q));
 
 const key = (i) => `${i.media_type === "tv" ? "tv" : "movie"}-${i.id}`;
 
@@ -36,10 +38,10 @@ function dedupe(items, skip = new Set()) {
   return items.filter((i) => i && !seen.has(key(i)) && seen.add(key(i)));
 }
 
-async function aiPicks(q) {
-  const titles = await getRecommendations(q);
+async function aiPicks(q, constraints) {
+  const titles = await getRecommendations(q, constraints);
   const found = await Promise.all(titles.map((t) => tmdb.findTitle(t).catch(() => null)));
-  return dedupe(found).map((i) => ({ ...i, fromAi: true }));
+  return dedupe(found);
 }
 
 // Reddit names titles as plain text; keep only exact TMDB matches.
@@ -56,11 +58,7 @@ async function redditPicks(q, kind) {
   return { items: dedupe(matched), threads };
 }
 
-async function describeSearch(q) {
-  const { parsed, items } = await moodSearch(q, { tmdb });
-  // Nothing understood: treat it as a title after all.
-  return { parsed, items: items.length ? items : await tmdb.search(q), understood: items.length > 0 };
-}
+const EXAMPLES = ["A sad space movie", "Funny Korean series from the 2010s", "Something like Knives Out", "A tense heist film"];
 
 export default function Search() {
   const [params, setParams] = useSearchParams();
@@ -72,19 +70,33 @@ export default function Search() {
   const [attempt, setAttempt] = useState(0);
   useDocumentTitle(q ? `“${q}”` : "Search");
 
-  const kindHint = filters.type === "tv" ? "tv" : filters.type === "movie" ? "movie" : parseRequest(q).type;
+  // Stage 1: understand the request (film request, exact title, or neither).
+  const gate = useAsync(() => (q && describe ? understand(q, { tmdb }) : null), [q, describe]);
+  const verdict = gate.data?.kind;
+  const asFilm = describe && verdict === "film";
+  const asTitle = !describe || verdict === "title";
+  const notFilm = describe && verdict === "none";
 
-  const titles = useAsync(() => (q && !describe ? tmdb.search(q) : null), [q, describe, attempt]);
-  const mood = useAsync(() => (q && describe ? describeSearch(q) : null), [q, describe, attempt]);
-  const ai = useAsync(() => (q && describe ? aiPicks(q) : null), [q, describe, attempt]);
-  const reddit = useAsync(() => (q && describe ? redditPicks(q, kindHint) : null), [q, describe, kindHint, attempt]);
+  // Stage 2: gather from every source with the filters merged in.
+  const filterKey = JSON.stringify([filters.type, filters.genres, filters.from, filters.to, filters.rating, filters.lang]);
+  const spec = asFilm ? withFilters(gate.data.parsed, filters) : null;
+  const constraints = spec ? constraintsFor(spec, filters) : null;
 
+  const titles = useAsync(() => (q && asTitle && !gate.loading ? tmdb.search(q).then((r) => cleanTitleResults(r, q)) : null), [q, asTitle, gate.loading, attempt]);
+  const pool = useAsync(() => (asFilm ? gather(gate.data, filters, { tmdb }) : null), [q, asFilm, filterKey, attempt]);
+  const ai = useAsync(() => (asFilm ? aiPicks(q, constraints) : null), [q, asFilm, JSON.stringify(constraints)]);
+  const reddit = useAsync(() => (asFilm ? redditPicks(q, spec.type) : null), [q, asFilm, spec?.type]);
+
+  // Stages 3 and 4: rank everything together, then apply the filters strictly.
   const redditItems = useMemo(() => reddit.data?.items || [], [reddit.data]);
   const moreItems = useMemo(() => {
-    if (!describe) return titles.data || [];
-    const skip = new Set(redditItems.map(key));
-    return dedupe([...(ai.data || []), ...(mood.data?.items || [])], skip);
-  }, [describe, titles.data, ai.data, mood.data, redditItems]);
+    if (!asFilm) return titles.data || [];
+    if (!pool.data) return [];
+    return rank(
+      { ai: ai.data || [], similar: pool.data.similar, discover: pool.data.discover },
+      { spec: pool.data.spec, reference: gate.data.reference, filters: { ...filters, type: "all", sort: "best" }, exclude: new Set(redditItems.map(key)) },
+    );
+  }, [asFilm, titles.data, pool.data, ai.data, gate.data, filters, redditItems]);
 
   const noType = { ...filters, type: "all" };
   const counts = (list) => {
@@ -109,8 +121,8 @@ export default function Search() {
 
   const chips = describeSearchFilters(filters);
   const filterCount = searchFilterCount(filters);
-  const mainLoading = describe ? mood.loading : titles.loading;
-  const mainError = describe ? mood.error : titles.error;
+  const mainLoading = gate.loading || (asFilm ? pool.loading : titles.loading);
+  const mainError = gate.error || (asFilm ? pool.error : titles.error);
   const anyFiltered = filterCount > 0 || filters.type !== "all";
   const total = shownMore.length + shownReddit.length;
 
@@ -130,7 +142,9 @@ export default function Search() {
         <>
           <div className="search-page__head">
             <h1 className="search-page__title">
-              {describe ? (
+              {notFilm ? (
+                <>“{q}”</>
+              ) : describe && !asTitle ? (
                 <>
                   <Sparkles size={20} aria-hidden="true" className="search-page__ai-icon" /> Picks for “{q}”
                 </>
@@ -143,8 +157,30 @@ export default function Search() {
             </button>
           </div>
 
-          {describe && mood.data?.understood && <Understood parsed={mood.data.parsed} />}
+          {asFilm && pool.data && <Understood spec={pool.data.spec} reference={gate.data.reference} />}
 
+          {notFilm && (
+            <StateMessage
+              icon={SearchX}
+              title="That doesn’t sound like a film or a series"
+              action={
+                <ul className="search-page__examples">
+                  {EXAMPLES.map((ex) => (
+                    <li key={ex}>
+                      <button type="button" className="btn btn-secondary" onClick={() => run(ex, "describe")}>
+                        {ex}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              }
+            >
+              The clerk only stocks films and series, so there’s nothing for “{q}”. Describe a mood, a genre, a decade or a
+              language, or say “something like” a title you love.
+            </StateMessage>
+          )}
+
+          {!notFilm && (
           <div className="browse__layout search-page__layout">
             <aside className="browse__sidebar" aria-label="Filters">
               {panel}
@@ -196,7 +232,7 @@ export default function Search() {
                 </ul>
               )}
 
-              {describe && (
+              {asFilm && (
                 <RedditSection
                   state={reddit}
                   items={shownReddit}
@@ -204,7 +240,7 @@ export default function Search() {
                 />
               )}
 
-              {describe && (
+              {asFilm && (
                 <h2 className="section-title tape search-page__section">{redditItems.length ? "More matches" : "Matches"}</h2>
               )}
 
@@ -227,11 +263,13 @@ export default function Search() {
                   count={12}
                   showKind
                   renderBadge={(item) =>
-                    item.fromAi && (
+                    item.sources?.includes("ai") ? (
                       <span className="poster-badge poster-badge--ai">
                         <Sparkles size={11} aria-hidden="true" /> Clerk’s pick
                       </span>
-                    )
+                    ) : item.sources?.includes("similar") && gate.data?.reference ? (
+                      <span className="poster-badge">Like {titleOf(gate.data.reference)}</span>
+                    ) : null
                   }
                 />
               ) : moreItems.length > 0 ? (
@@ -255,15 +293,16 @@ export default function Search() {
                     </Link>
                   }
                 >
-                  {describe
+                  {asFilm
                     ? "Try other words: a mood, a genre, a decade or a language, like “tense crime series from the 90s”."
                     : "Check the spelling, or describe it instead: “a heist film set in Paris”."}
                 </StateMessage>
               )}
 
-              {describe && reddit.data?.threads?.length > 0 && <Threads threads={reddit.data.threads} />}
+              {asFilm && reddit.data?.threads?.length > 0 && <Threads threads={reddit.data.threads} />}
             </section>
           </div>
+          )}
 
           <dialog
             ref={sheet}
@@ -293,13 +332,15 @@ export default function Search() {
   );
 }
 
-function Understood({ parsed }) {
+function Understood({ spec, reference }) {
   const parts = [
-    parsed.type === "tv" ? "Series" : "Films",
-    ...parsed.genres.map((g) => genreName(parsed.type, g)).filter(Boolean),
-    ...parsed.keywords.map((k) => `“${k}”`),
-    parsed.from && parsed.to ? (parsed.from === parsed.to ? `${parsed.from}` : `${parsed.from}–${parsed.to}`) : parsed.from ? `from ${parsed.from}` : parsed.to ? `up to ${parsed.to}` : null,
-    parsed.rating && `rated ${parsed.rating}+`,
+    spec.type === "tv" ? "Series" : "Films",
+    reference && `like ${titleOf(reference)}`,
+    ...spec.genres.map((g) => genreName(spec.type, g)).filter(Boolean),
+    ...spec.keywords.map((k) => `“${k}”`),
+    spec.from && spec.to ? (spec.from === spec.to ? `${spec.from}` : `${spec.from}–${spec.to}`) : spec.from ? `from ${spec.from}` : spec.to ? `up to ${spec.to}` : null,
+    spec.lang && LANGUAGES.find(([v]) => v === spec.lang)?.[1],
+    spec.rating && `rated ${spec.rating}+`,
   ].filter(Boolean);
   return (
     <p className="search-page__understood">

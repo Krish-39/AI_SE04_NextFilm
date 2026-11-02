@@ -84,7 +84,7 @@ export const tmdb = {
     request("/search/keyword", { query: word }).then((d) => {
       const list = d.results || [];
       const w = word.toLowerCase();
-      return (list.find((k) => k.name.toLowerCase() === w) || list.find((k) => k.name.toLowerCase().startsWith(w)) || null)?.id ?? null;
+      return list.find((k) => k.name.toLowerCase() === w)?.id ?? null;
     }),
   // Exact-title match only, so a stray word in a Reddit comment never turns
   // into a random film. A year, when given, picks between remakes.

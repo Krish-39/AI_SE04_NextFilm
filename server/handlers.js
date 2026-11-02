@@ -3,7 +3,7 @@
 import { extractTitlesWithAi, recommend } from "./ai.js";
 import { communityPicks, validatePicksRequest } from "./picks.js";
 import { redditRequestFromParams, searchReddit } from "./reddit.js";
-import { validatePrompt } from "./recommend.js";
+import { validateConstraints, validatePrompt } from "./recommend.js";
 
 const env = (name) => {
   const v = process.env[name];
@@ -56,7 +56,7 @@ export const recommendTitles = wrap(async (params, res) => {
   if (!prompt) return send(res, 400, { error: "q must be 1-500 characters" });
   const key = env("GEMINI_API_KEY");
   if (!key) return send(res, 501, { error: "AI not configured" });
-  send(res, 200, { titles: await recommend(prompt, key) }, 3600);
+  send(res, 200, { titles: await recommend(prompt, key, validateConstraints(params)) }, 3600);
 });
 
 export const routes = { community, "reddit-picks": redditPicks, recommend: recommendTitles };
