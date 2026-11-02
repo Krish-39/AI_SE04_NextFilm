@@ -4,12 +4,12 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 // Firebase web config is public by design; access is enforced by
 // Firebase Auth and Firestore security rules, not by hiding these values.
 const firebaseConfig = {
-  apiKey: "AIzaSyD-wis5h-Q5lf4K98HarAHlEbQcFGsGEjw",
-  authDomain: "nextfilm-84dc1.firebaseapp.com",
-  projectId: "nextfilm-84dc1",
-  storageBucket: "nextfilm-84dc1.firebasestorage.app",
-  messagingSenderId: "330478566830",
-  appId: "1:330478566830:web:ee6b1e844b45faab75dc3f",
+  apiKey: "AIzaSyAPBpk83Ksk1KDfHD3wPAL12IMLDOOESgg",
+  authDomain: "nextfilm-mimi.firebaseapp.com",
+  projectId: "nextfilm-mimi",
+  storageBucket: "nextfilm-mimi.firebasestorage.app",
+  messagingSenderId: "137067561575",
+  appId: "1:137067561575:web:691c4b1614dea36607cac2",
 };
 
 export const app = initializeApp(firebaseConfig);

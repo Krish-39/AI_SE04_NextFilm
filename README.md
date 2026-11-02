@@ -1,6 +1,6 @@
 # NextFilm
 
-**Live demo:** <https://nextfilm-84dc1.web.app>
+**Live demo:** <https://nextfilm-mimi.web.app>
 
 An AI-assisted movie discovery app built for the DA120B group project. Search TMDb, browse curated rows, describe the kind of film you're in the mood for and get AI picks, and keep a personal watchlist behind Firebase sign-in.
 
@@ -79,7 +79,7 @@ The watchlist lives in Firestore at `users/{uid}/watchlist`. `firestore.rules` l
 - **Console:** Firebase console → Firestore Database → Rules → paste `firestore.rules` → Publish
 - **CLI:** `firebase deploy --only firestore:rules`
 
-The project is set in `.firebaserc` (`nextfilm-84dc1`), the same project `src/firebase.js` connects to.
+The project is set in `.firebaserc` (`nextfilm-mimi`), the same project `src/firebase.js` connects to.
 
 ### Deploy the site
 
