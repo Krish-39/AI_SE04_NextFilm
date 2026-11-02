@@ -79,7 +79,7 @@ The watchlist lives in Firestore at `users/{uid}/watchlist`. `firestore.rules` l
 - **Console:** Firebase console → Firestore Database → Rules → paste `firestore.rules` → Publish
 - **CLI:** `firebase deploy --only firestore:rules`
 
-The project is set in `.firebaserc` (`nextfilm-ai`), the same project `src/firebase.js` connects to.
+The project is set in `.firebaserc` (`nextfilm-84dc1`), the same project `src/firebase.js` connects to.
 
 ### Deploy the site
 
@@ -88,7 +88,7 @@ npm run build
 firebase deploy --only hosting
 ```
 
-`firebase.json` serves `dist/` with a single-page-app rewrite, so deep links like `/movie/603` work on refresh. If your hosting site lives in a different Firebase project from the one in `.firebaserc`, add `--project <id>`.
+`firebase.json` serves `dist/` with a single-page-app rewrite, so deep links like `/movie/603` work on refresh.
 
 ### Checks
 
