@@ -8,25 +8,43 @@
 import { TV_EQUIVALENT } from "./searchFilters";
 
 // [words, movie genre, tv genre, also search it as a keyword]
+// Words are single tokens; common two-word phrases are joined first (PHRASES).
 const TOPICS = [
-  [["sad", "sadder", "saddest", "emotional", "tearjerker", "cry", "crying", "heartbreaking", "melancholy", "depressing", "moving", "touching", "drama", "dramatic"], 18, 18],
-  [["funny", "comedy", "comedies", "hilarious", "laugh", "lighthearted", "light-hearted", "silly", "goofy", "feel-good", "feelgood", "witty", "funnier", "funniest", "cozy", "cosy", "cozier", "cosier", "wholesome", "heartwarming", "heart-warming", "uplifting", "comfort", "comforting"], 35, 35],
-  [["scary", "scarier", "scariest", "horror", "creepy", "terrifying", "frightening", "spooky", "haunted", "slasher"], 27, null],
-  [["thriller", "suspense", "suspenseful", "tense", "gripping", "twist", "twists", "psychological"], 53, 9648],
-  [["action", "explosive", "fights", "fighting", "martial"], 28, 10759],
-  [["adventure", "quest", "journey", "epic", "treasure"], 12, 10759],
-  [["romantic", "romance", "love", "romcom", "rom-com", "date"], 10749, null],
-  [["animated", "animation", "cartoon", "pixar", "anime"], 16, 16],
-  [["space", "sci-fi", "scifi", "alien", "aliens", "futuristic", "future", "robot", "robots", "dystopian", "dystopia", "cyberpunk", "astronaut", "planet"], 878, 10765, true],
-  [["fantasy", "magic", "magical", "dragon", "dragons", "wizard", "wizards", "fairy"], 14, 10765, true],
-  [["crime", "heist", "gangster", "gangsters", "mafia", "mob", "detective", "cop", "cops", "murder", "serial", "killer"], 80, 80, true],
-  [["mystery", "whodunit", "mysterious", "puzzle"], 9648, 9648],
-  [["documentary", "documentaries", "docuseries"], 99, 99],
-  [["family", "kids", "kid", "children", "kid-friendly", "family-friendly", "mom", "mum", "dad", "parents", "grandma", "grandparents"], 10751, 10751],
-  [["war", "soldier", "soldiers", "military", "ww2", "wwii"], 10752, 10768, true],
-  [["western", "cowboy", "cowboys"], 37, 37],
-  [["musical", "music", "band", "singer"], 10402, null],
-  [["history", "historical", "period"], 36, null],
+  [["sad", "sadder", "saddest", "emotional", "tearjerker", "tear-jerker", "cry", "crying", "heartbreaking", "heartbreak", "melancholy", "depressing", "moving", "touching", "drama", "dramas", "dramatic", "grief", "loss", "tragic", "tragedy", "bittersweet", "slow-burn", "character-driven", "coming-of-age"], 18, 18],
+  [["funny", "comedy", "comedies", "hilarious", "laugh", "laughs", "laughing", "lighthearted", "light-hearted", "silly", "goofy", "feel-good", "feelgood", "witty", "funnier", "funniest", "cozy", "cosy", "cozier", "cosier", "wholesome", "heartwarming", "heart-warming", "uplifting", "comfort", "comforting", "parody", "satire", "slapstick", "sitcom", "sitcoms", "dumb", "stupid-funny"], 35, 35],
+  [["scary", "scarier", "scariest", "horror", "creepy", "terrifying", "frightening", "spooky", "haunted", "haunting", "slasher", "gore", "gory", "jump-scares", "nightmare", "disturbing"], 27, null],
+  [["zombie", "zombies", "vampire", "vampires", "ghost", "ghosts", "demon", "demons", "possession", "exorcism", "monster", "monsters", "werewolf", "werewolves", "cannibal", "witch", "witches"], 27, 10765, true],
+  [["thriller", "thrillers", "suspense", "suspenseful", "tense", "gripping", "twist", "twists", "psychological", "edge-of-seat", "nail-biting", "intense", "mind-bending", "paranoid", "paranoia", "conspiracy", "kidnapping", "hostage", "stalker", "cat-and-mouse", "survival", "dark", "gritty"], 53, 9648],
+  [["action", "actions", "explosive", "explosions", "explosion", "fight", "fights", "fighting", "fighter", "brawl", "martial", "fast", "fast-paced", "adrenaline", "high-octane", "action-packed", "badass", "intense-action", "stunts", "battle", "battles", "rescue", "mission", "bodycount", "guns", "gun"], 28, 10759],
+  [["gunfight", "gunfights", "shootout", "shootouts", "firefight", "shooting", "sniper", "car-chase", "car-chases", "chase", "chases", "assassin", "assassins", "hitman", "hitmen", "mercenary", "mercenaries", "spy", "spies", "espionage", "revenge", "vengeance", "martial-arts", "kung-fu", "karate", "superhero", "superheroes", "racing", "street-racing"], 28, 10759, true],
+  [["adventure", "adventures", "quest", "journey", "epic", "treasure", "pirate", "pirates", "jungle", "island", "exploration", "expedition", "road-trip"], 12, 10759],
+  [["romantic", "romance", "love", "love-story", "romcom", "rom-com", "date", "date-night", "relationship", "relationships", "dating", "crush", "wedding", "couple"], 10749, null],
+  [["animated", "animation", "cartoon", "cartoons", "pixar", "ghibli", "anime"], 16, 16],
+  [["space", "sci-fi", "scifi", "science-fiction", "alien", "aliens", "futuristic", "future", "robot", "robots", "dystopian", "dystopia", "cyberpunk", "astronaut", "planet", "time-travel", "apocalypse", "post-apocalyptic", "apocalyptic", "simulation", "virtual-reality", "clone", "clones", "mutant", "mutants", "artificial-intelligence", "spaceship"], 878, 10765, true],
+  [["fantasy", "magic", "magical", "dragon", "dragons", "wizard", "wizards", "fairy", "fairytale", "sword", "swords", "medieval", "kingdom", "mythology", "myth", "gods", "elves"], 14, 10765, true],
+  [["crime", "heist", "heists", "gangster", "gangsters", "mafia", "mob", "detective", "detectives", "cop", "cops", "police", "murder", "murders", "serial", "killer", "serial-killer", "drugs", "cartel", "robbery", "bank-robbery", "prison", "thief", "thieves", "con", "scam", "true-crime", "courtroom", "lawyer", "lawyers", "noir"], 80, 80, true],
+  [["mystery", "mysteries", "whodunit", "whodunnit", "mysterious", "puzzle", "investigation", "unsolved"], 9648, 9648],
+  [["documentary", "documentaries", "docuseries", "real-life", "true-story", "biopic"], 99, 99],
+  [["family", "kids", "kid", "children", "kid-friendly", "family-friendly", "mom", "mum", "dad", "parents", "grandma", "grandparents", "disney"], 10751, 10751],
+  [["war", "wars", "soldier", "soldiers", "military", "ww2", "wwii", "ww1", "army", "navy", "vietnam"], 10752, 10768, true],
+  [["western", "westerns", "cowboy", "cowboys", "outlaw", "outlaws"], 37, 37],
+  [["musical", "musicals", "music", "band", "singer", "dance", "dancing", "concert"], 10402, null],
+  [["history", "historical", "period", "ancient", "royal", "biography"], 36, null],
+  [["sport", "sports", "football", "soccer", "boxing", "basketball", "baseball", "underdog"], 18, 18, true],
+];
+
+// Two-word phrases joined into one token before matching.
+const PHRASES = [
+  ["gun fight", "gunfight"], ["gun fights", "gunfights"], ["shoot out", "shootout"], ["fire fight", "firefight"],
+  ["car chase", "car-chase"], ["car chases", "car-chases"], ["fast paced", "fast-paced"], ["high octane", "high-octane"],
+  ["action packed", "action-packed"], ["martial arts", "martial-arts"], ["kung fu", "kung-fu"], ["time travel", "time-travel"],
+  ["true story", "true-story"], ["true crime", "true-crime"], ["based on a true story", "true-story"], ["coming of age", "coming-of-age"],
+  ["serial killer", "serial-killer"], ["love story", "love-story"], ["date night", "date-night"], ["road trip", "road-trip"],
+  ["post apocalyptic", "post-apocalyptic"], ["science fiction", "science-fiction"], ["virtual reality", "virtual-reality"],
+  ["artificial intelligence", "artificial-intelligence"], ["jump scares", "jump-scares"], ["edge of my seat", "edge-of-seat"],
+  ["edge of your seat", "edge-of-seat"], ["edge of the seat", "edge-of-seat"], ["slow burn", "slow-burn"], ["feel good", "feel-good"],
+  ["real life", "real-life"], ["bank robbery", "bank-robbery"], ["street racing", "street-racing"], ["cat and mouse", "cat-and-mouse"],
+  ["nail biting", "nail-biting"], ["tear jerker", "tear-jerker"], ["character driven", "character-driven"], ["light hearted", "light-hearted"],
 ];
 
 const LANGS = {
@@ -45,10 +63,25 @@ const STOP = new Set(
   ("a an the and or but of in on at to for from with without about into like as is are was be been i me my we you something "
     + "some any want looking look find recommend recommendation recommendations suggest suggestions need watch watching tonight "
     + "night that which who where when what kind type sort really very bit little lot more most less mood feel feeling "
-    + "set based where there it its this these those one ones please can could would should get got old new recent").split(" "),
+    + "set based where there it its this these those one ones please can could would should get got old new recent "
+    + "has have had having which whose contain contains containing include includes including lots plenty full stuff thing things "
+    + "just maybe also so much many lot loads tons bunch kinda sorta pretty quite super enough even still yet only "
+    + "show me give tell let us our your his her their they them he she him im i'm ive i've id i'd ill i'll dont don't do does did "
+    + "something anything everything nothing someone somebody people person guy guys girl girls man woman men women "
+    + "am will shall might must may than then too very way ways make makes made makin while during after before over under "
+    + "not no yes ok okay hey hi hello thanks thank").split(" "),
 );
 
-const words = (q) => q.toLowerCase().replace(/[^\p{L}\p{N}'\- ]+/gu, " ").split(/\s+/).filter(Boolean);
+function joinPhrases(text) {
+  let t = ` ${text} `;
+  for (const [from, to] of PHRASES) t = t.replaceAll(` ${from} `, ` ${to} `);
+  return t;
+}
+
+const words = (q) =>
+  joinPhrases(q.toLowerCase().replace(/[^\p{L}\p{N}'\- ]+/gu, " ").replace(/\s+/g, " ").trim())
+    .split(/\s+/)
+    .filter(Boolean);
 
 function era(q, currentYear) {
   const text = q.toLowerCase();

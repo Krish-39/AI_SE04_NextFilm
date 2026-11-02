@@ -30,6 +30,12 @@ describe("understand", () => {
     expect((await understand("the lord of the rings", { tmdb })).kind).toBe("title");
   });
 
+  it("asks the AI before rejecting wording the rules don't know", async () => {
+    expect((await understand("that one where a guy wakes up on the same day", { tmdb, aiCheck: async () => [film(7), film(8)] })).kind).toBe("film");
+    expect((await understand("mongo rice with banana", { tmdb, aiCheck: async () => [] })).kind).toBe("none");
+    expect((await understand("mongo rice with banana", { tmdb, aiCheck: async () => { throw new Error("down"); } })).kind).toBe("none");
+  });
+
   it("rejects food and other non-film text", async () => {
     expect((await understand("mongo rice with banana", { tmdb })).kind).toBe("none");
     expect((await understand("chicken masala", { tmdb })).kind).toBe("none");

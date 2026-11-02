@@ -71,7 +71,7 @@ export default function Search() {
   useDocumentTitle(q ? `“${q}”` : "Search");
 
   // Stage 1: understand the request (film request, exact title, or neither).
-  const gate = useAsync(() => (q && describe ? understand(q, { tmdb }) : null), [q, describe]);
+  const gate = useAsync(() => (q && describe ? understand(q, { tmdb, aiCheck: (text) => aiPicks(text, {}) }) : null), [q, describe]);
   const verdict = gate.data?.kind;
   const asFilm = describe && verdict === "film";
   const asTitle = !describe || verdict === "title";

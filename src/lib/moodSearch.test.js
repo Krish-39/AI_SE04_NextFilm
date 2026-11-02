@@ -53,7 +53,19 @@ describe("isFilmRequest", () => {
     (q) => expect(isFilmRequest(parseRequest(q, 2026))).toBe(false),
   );
 
-  it.each(["a sad space movie", "something to watch with my mom", "korean thriller", "best of the 90s", "a show about chefs"])(
+  it.each([
+    "a sad space movie",
+    "something to watch with my mom",
+    "korean thriller",
+    "best of the 90s",
+    "a show about chefs",
+    "i want something which is fast and has gun fight",
+    "something with car chases and explosions",
+    "zombies please",
+    "a spy thing with lots of twists",
+    "mind-bending time travel",
+    "a true story about a boxer",
+  ])(
     "accepts %s",
     (q) => expect(isFilmRequest(parseRequest(q, 2026))).toBe(true),
   );
@@ -63,6 +75,18 @@ describe("isFilmRequest", () => {
     expect(p.reference).toBe("Paddington");
     expect(isFilmRequest(p, false)).toBe(false);
     expect(isFilmRequest(p, true)).toBe(true);
+  });
+});
+
+describe("phrases", () => {
+  it("reads fast + gun fight as action, and searches the gunfight keyword", () => {
+    const p = parseRequest("i want something which is fast and has gun fight", 2026);
+    expect(p.genres).toEqual([28]);
+    expect(p.keywords).toEqual(["gunfight"]);
+  });
+
+  it("joins common two-word phrases", () => {
+    expect(parseRequest("car chase and time travel", 2026).keywords).toEqual(["car-chase", "time-travel"]);
   });
 });
 

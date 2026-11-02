@@ -80,12 +80,13 @@ export const tmdb = {
         (d.results || []).find((r) => (r.media_type === "movie" || r.media_type === "tv") && r.poster_path) || null,
     ),
   // A TMDB keyword id for a word ("heist" -> 10051), or null.
-  keyword: (word) =>
-    request("/search/keyword", { query: word }).then((d) => {
+  keyword: (word) => {
+    const w = word.toLowerCase().replace(/-/g, " ");
+    return request("/search/keyword", { query: w }).then((d) => {
       const list = d.results || [];
-      const w = word.toLowerCase();
-      return list.find((k) => k.name.toLowerCase() === w)?.id ?? null;
-    }),
+      return list.find((k) => k.name.toLowerCase().replace(/-/g, " ") === w)?.id ?? null;
+    });
+  },
   // Exact-title match only, so a stray word in a Reddit comment never turns
   // into a random film. A year, when given, picks between remakes.
   matchTitle: (title, year) =>

@@ -16,7 +16,10 @@ const MIN_VOTES = 20;
 
 const norm = (s) => (s || "").toLowerCase().replace(/^the\s+/, "").replace(/[^\p{L}\p{N}]+/gu, "");
 
-export async function understand(q, { tmdb }) {
+// `aiCheck` (optional) is a second opinion for wording the rules don't know:
+// it returns AI picks for the text, or [] when the AI says it isn't a film
+// request (the server prompt tells it to answer NONE for food and the like).
+export async function understand(q, { tmdb, aiCheck }) {
   const parsed = parseRequest(q);
   let reference = null;
   if (parsed.reference) {
@@ -28,6 +31,10 @@ export async function understand(q, { tmdb }) {
   // "the lord of the rings" has no mood words but is a real title.
   const exact = await tmdb.matchTitle(q).catch(() => null);
   if (exact) return { kind: "title", parsed, reference: null };
+  if (aiCheck) {
+    const picks = await aiCheck(q).catch(() => []);
+    if (picks.length >= 2) return { kind: "film", parsed, reference: null, byAi: true };
+  }
   return { kind: "none", parsed, reference: null };
 }
 
@@ -49,7 +56,9 @@ export async function gather(u, filters, { tmdb }) {
   const hasShape = spec.genres.length || spec.keywords.length || spec.lang || spec.from || spec.to || spec.rating;
   const ref = u.reference;
   const [discover, similar] = await Promise.all([
-    hasShape || !ref ? discoverFor(spec, { tmdb }) : [],
+    // Nothing to search by (the AI understood it, the rules didn't): don't
+    // pad the list with generic popular titles.
+    hasShape ? discoverFor(spec, { tmdb }) : [],
     ref ? tmdb.recommendations(ref.media_type === "tv" ? "tv" : "movie", ref.id).catch(() => []) : [],
   ]);
   return { spec, discover, similar };
