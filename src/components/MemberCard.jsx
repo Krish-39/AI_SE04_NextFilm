@@ -11,7 +11,7 @@ export default function MemberCard({ name, email, className = "" }) {
   return (
     <div className={`member-card ${className}`} aria-hidden="true">
       <div className="member-card__band">
-        <span>NextFilm Video</span>
+        <span>NextFilm</span>
         <span>Member</span>
       </div>
       <div className="member-card__body">

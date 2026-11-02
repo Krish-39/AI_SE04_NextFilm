@@ -143,7 +143,7 @@ export function RentalSlip({ items, email, onRemove }) {
   return (
     <div className="receipt slip">
       <div className="slip__head">
-        <p className="slip__store">NextFilm Video</p>
+        <p className="slip__store">NextFilm</p>
         <p>Rental slip · {today}</p>
         {email && <p>Member: {email}</p>}
       </div>

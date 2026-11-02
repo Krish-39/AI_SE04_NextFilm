@@ -46,21 +46,6 @@
   color: var(--text);
 }
 
-.logo-tag {
-  padding: 3px 6px 2px;
-  border-radius: 2px;
-  background: var(--neon);
-  color: #1a0b06;
-  font-family: var(--font-display);
-  font-stretch: 100%;
-  font-weight: 800;
-  font-size: 0.6875rem;
-  line-height: 1;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  rotate: -4deg;
-  translate: 0 -6px;
-}
 
 .site-header__nav {
   display: flex;
@@ -235,9 +220,6 @@
     font-size: 1.25rem;
   }
 
-  .logo-tag {
-    display: none;
-  }
 
   .site-header__actions {
     gap: 0;

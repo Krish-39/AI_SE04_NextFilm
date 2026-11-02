@@ -117,3 +117,58 @@
   right: 12px;
   color: var(--paper-ink-2);
 }
+
+/* What the search understood from a description, so people can see why */
+.search-page__understood {
+  margin-top: 14px;
+  color: var(--text-2);
+  font-size: var(--step--1);
+}
+
+.search-page__understood span {
+  margin-right: 6px;
+  color: var(--text-3);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.search-page__layout {
+  margin-top: 28px;
+}
+
+.search-page__toolbar {
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.search-page__section {
+  margin: 40px 0 20px;
+}
+
+.reddit-picks {
+  margin-top: 24px;
+}
+
+.reddit-picks .section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reddit-picks__lede {
+  margin: 12px 0 20px;
+  max-width: 62ch;
+  color: var(--text-3);
+  font-size: var(--step--1);
+}
+
+.reddit-picks__note {
+  padding: 16px 18px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  color: var(--text-2);
+  font-size: var(--step--1);
+}
+.search-page__toolbar .browse__sort { margin-left: auto; }

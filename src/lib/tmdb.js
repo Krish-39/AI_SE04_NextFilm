@@ -79,6 +79,26 @@ export const tmdb = {
       (d) =>
         (d.results || []).find((r) => (r.media_type === "movie" || r.media_type === "tv") && r.poster_path) || null,
     ),
+  // A TMDB keyword id for a word ("heist" -> 10051), or null.
+  keyword: (word) =>
+    request("/search/keyword", { query: word }).then((d) => {
+      const list = d.results || [];
+      const w = word.toLowerCase();
+      return (list.find((k) => k.name.toLowerCase() === w) || list.find((k) => k.name.toLowerCase().startsWith(w)) || null)?.id ?? null;
+    }),
+  // Exact-title match only, so a stray word in a Reddit comment never turns
+  // into a random film. A year, when given, picks between remakes.
+  matchTitle: (title, year) =>
+    request("/search/multi", { query: title, include_adult: "false" }).then((d) => {
+      const norm = (s) => (s || "").toLowerCase().replace(/^the\s+/, "").replace(/[^\p{L}\p{N}]+/gu, "");
+      const want = norm(title);
+      const hits = (d.results || []).filter(
+        (r) => (r.media_type === "movie" || r.media_type === "tv") && r.poster_path && norm(r.title || r.name) === want,
+      );
+      if (!hits.length) return null;
+      const byYear = year && hits.find((r) => (r.release_date || r.first_air_date || "").startsWith(String(year)));
+      return byYear || hits.sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0))[0];
+    }),
   findMovie: (title) =>
     request("/search/movie", { query: title, include_adult: "false" }).then(
       (d) => withKind(d.results, "movie").find((r) => r.poster_path) || null,

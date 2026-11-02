@@ -1,22 +1,28 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
+
+// Serves /api/* during `npm run dev` with the same handlers Vercel runs in
+// production (server/handlers.js), so Reddit and AI work locally too.
+function localApi() {
+  return {
+    name: "nextfilm-local-api",
+    configureServer(server) {
+      Object.assign(process.env, loadEnv("development", process.cwd(), ""));
+      server.middlewares.use("/api", async (req, res, next) => {
+        const name = new URL(req.url, "http://localhost").pathname.replace(/^\/+|\/+$/g, "");
+        const { routes } = await server.ssrLoadModule("/server/handlers.js");
+        if (!routes[name]) return next();
+        req.url = `/api${req.url}`;
+        return routes[name](req, res);
+      });
+    },
+  };
+}
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  server: {
-    proxy: {
-      // Reddit blocks browser requests; in development we forward them from
-      // the dev server. Production uses the communitySearch Cloud Function.
-      "/reddit-api": {
-        target: "https://www.reddit.com",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/reddit-api/, ""),
-        headers: { "User-Agent": "web:nextfilm-dev:1.0 (local development)" },
-      },
-    },
-  },
+  plugins: [react(), localApi()],
   test: {
-    include: ["src/**/*.test.{js,jsx}"],
+    include: ["src/**/*.test.{js,jsx}", "server/**/*.test.js"],
   },
 });

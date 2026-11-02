@@ -24,17 +24,6 @@
       }
     ]
   },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "*.test.js"
-      ]
-    }
-  ],
   "firestore": {
     "rules": "firestore.rules"
   }

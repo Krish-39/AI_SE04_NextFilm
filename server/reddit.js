@@ -1,5 +1,5 @@
-// Server-side Reddit search. Reddit refuses requests from browsers (CORS),
-// so the web app asks this function instead.
+// Server-side Reddit access. Reddit refuses requests from browsers (CORS),
+// so the web app asks the /api functions, which use this module.
 //
 // With REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET set it uses Reddit's official
 // app-only OAuth API (reliable); otherwise it falls back to the public JSON.
@@ -63,34 +63,47 @@ async function appToken(clientId, clientSecret, fetchImpl) {
 
 const cache = new Map();
 
-export async function searchReddit({ subreddits, query, sort, limit }, { clientId, clientSecret, fetchImpl = fetch } = {}) {
+// GET a Reddit listing. Uses the official API when app credentials are set,
+// otherwise the public JSON (which Reddit may block from cloud servers).
+export async function redditGet(path, params, { clientId, clientSecret, fetchImpl = fetch } = {}) {
   let bearer = null;
   try {
     bearer = await appToken(clientId, clientSecret, fetchImpl);
   } catch {
-    bearer = null; // fall back to the public endpoint
+    // Bad or revoked credentials: fall back to the public endpoint.
   }
+  const query = new URLSearchParams({ ...params, raw_json: "1" });
+  const url = bearer ? `https://oauth.reddit.com${path}?${query}` : `https://www.reddit.com${path}.json?${query}`;
+  const hit = cache.get(url);
+  if (hit && hit.at > Date.now() - CACHE_MS) return hit.json;
+  const res = await fetchImpl(url, {
+    headers: { "User-Agent": USER_AGENT, ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}) },
+  });
+  if (!res.ok) throw new Error(`Reddit ${res.status}`);
+  const json = await res.json();
+  cache.set(url, { at: Date.now(), json });
+  return json;
+}
 
-  const one = async (sub) => {
-    const params = new URLSearchParams({ q: query, restrict_sr: "1", sort, limit: String(limit), raw_json: "1" });
-    const url = bearer
-      ? `https://oauth.reddit.com/r/${sub}/search?${params}`
-      : `https://www.reddit.com/r/${sub}/search.json?${params}`;
-    const hit = cache.get(url);
-    if (hit && hit.at > Date.now() - CACHE_MS) return hit.posts;
-    const res = await fetchImpl(url, {
-      headers: { "User-Agent": USER_AGENT, ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}) },
-    });
-    if (!res.ok) throw new Error(`Reddit ${res.status}`);
-    const posts = normalizePosts(await res.json(), sub);
-    cache.set(url, { at: Date.now(), posts });
-    return posts;
-  };
-
+export async function searchReddit({ subreddits, query, sort, limit }, auth = {}) {
+  const one = (sub) =>
+    redditGet(`/r/${sub}/search`, { q: query, restrict_sr: "1", sort, limit: String(limit) }, auth).then((json) =>
+      normalizePosts(json, sub),
+    );
   const settled = await Promise.allSettled(subreddits.map(one));
   const failed = settled.filter((s) => s.status === "rejected").length;
   return {
     posts: settled.flatMap((s) => (s.status === "fulfilled" ? s.value : [])),
     failed,
   };
+}
+
+// Query-string version of validateRedditRequest for the HTTP endpoint.
+export function redditRequestFromParams(params) {
+  return validateRedditRequest({
+    subreddits: (params.get("subs") || "").split(","),
+    query: params.get("q"),
+    sort: params.get("sort"),
+    limit: params.get("limit"),
+  });
 }

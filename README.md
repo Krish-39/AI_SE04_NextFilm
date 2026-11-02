@@ -8,17 +8,20 @@ The repository has two parts:
 
 | Part | Where | What it does |
 | --- | --- | --- |
-| Web app | `src/`, `functions/` | React + Vite front end, Firebase Auth and Firestore, a Cloud Function that calls Gemini |
+| Web app | `src/`, `api/`, `server/` | React + Vite front end, small Vercel functions for Reddit and Gemini, Firebase Auth and Firestore for accounts and watchlists |
 | Recommender research | `Source/Models/` | Python content-based, collaborative and hybrid recommenders on MovieLens 1M, plus EDA |
 
-The two are independent: the live app gets its suggestions from Gemini and TMDb, and the Python models are the offline study behind the report in `Documentation/`.
+The two are independent: the live app gets its suggestions from TMDb, Reddit and Gemini, and the Python models are the offline study behind the report in `Documentation/`.
 
 ## Features
 
-- **Home**: a full-bleed featured carousel of this week's trending films, the AI "ask" box, a **Picked for you** row built from your watchlist, a Top 10 rail, trending and top-rated series, and genre rails with "See all" links
+- **Home**: a full-bleed featured carousel of this week's trending films, the "ask" box, a **Picked for you** row built from your watchlist, a Top 10 rail, trending and top-rated series, and genre rails with "See all" links
 - **Browse** (`/browse`): filter films or series by genres (match all), release year or decade, minimum rating, length, original language and streaming service in your country, sorted by popularity, rating, date or title. Filters live in the URL, so any view can be bookmarked or shared; on phones they open in a bottom sheet with a live result count
-- **Ask NextFilm AI**: describe a mood or plot ("a slow, sad space movie") and Gemini picks five films or series. It also reads matching threads from Reddit recommendation communities (r/MovieSuggestions, r/NetflixBestOf, …) and adds what people there recommend, tagged **Reddit**, with links to the threads
-- **Search**: short queries search titles across films and series; longer ones go to the AI. Results can be narrowed to films or series
+- **Search** (`/search`): type a title, or describe what you want ("a sad space movie", "funny Korean series from the 2010s"). A description gives three things:
+  - **Recommended on Reddit**: titles real people suggested most in Reddit threads asking for the same thing, counted from their upvoted replies, with links to the threads
+  - **More matches**: the request read for moods, genres, decades, languages and topics and run against TMDb (this works with no AI at all), plus up to five Gemini picks marked **Clerk's pick**
+  - The page shows what it understood ("Looking for Films · Drama · Science fiction · "space""), so results are explainable
+  - Every result can be filtered by type, genres, years, rating and language, and sorted; filters live in the URL
 - **Title pages** for films (`/movie/:id`) and series (`/tv/:id`): backdrop, poster, runtime or seasons, genres, director or creators, cast, similar titles, the trailer in an in-page player, **Where to watch** (stream / free / rent / buy per country, data by JustWatch), and **Community buzz** (a 0–100 Reddit buzz score with the top threads)
 - **Watchlist** for films and series, stored per user in Firestore (`users/{uid}/watchlist`), with Films / Series tabs and sorting
 - Email/password and Google sign-in, password reset, and friendly error messages
@@ -28,17 +31,19 @@ The two are independent: the live app gets its suggestions from Gemini and TMDb,
 
 A small hybrid recommender in `src/lib/forYou.js`: TMDB's recommendations for your four most recent saves (collaborative signal), plus popular titles in the genres you save most (content signal), ranked together with rating as a tie-breaker. Titles you already saved are never suggested.
 
-### Reddit
+### How the Reddit picks work
 
-Reddit blocks requests made directly from browsers, so searches go through the `communitySearch` Cloud Function in production and through a dev-server proxy during `npm run dev`. If Reddit is slow or rate-limits, the app carries on without it: AI search waits at most 3.5 seconds, and title pages fall back to a "See all discussions on Reddit" link. Post titles are sent to the Cloud Function, which asks Gemini to extract the titles people are recommending; the browser never sees the Gemini key.
+`server/picks.js`: search r/MovieSuggestions, r/NetflixBestOf and r/movies (or the TV equivalents) for the request, take the four busiest matching threads, read their 30 most upvoted top-level replies, and pull out the titles each reply names (with Gemini when a key is set, otherwise with rules: bold or italic text, "Title (2009)" patterns and short title-case lines). Titles are ranked by how many different people named them, then by upvotes. The browser then keeps only titles with an exact TMDb title match, so a stray word never turns into a random film.
+
+Reddit blocks requests made directly from browsers, so all Reddit calls go through the site's `/api` functions. If Reddit is down or rate-limits, search still works and says the Reddit picks are unavailable, and title pages fall back to a "See all discussions on Reddit" link.
 
 ## Design
 
 The look and its rules (palette, type, spacing, motion, components) are written down in [`DESIGN.md`](DESIGN.md). In short: a late-night video rental store. Shelves with label-maker tape, yellow price-label buttons, red "staff pick" stickers, handwritten index cards for Reddit picks, and your watchlist printed as a rental receipt. Archivo for labels and titles, Instrument Sans for reading, Kalam only on the staff-pick cards, IBM Plex Mono only on the receipt.
 
-## How the AI search stays safe
+## How the keys stay safe
 
-The Gemini key never reaches the browser. `src/services/gemini.js` calls the `recommendMovies` Cloud Function (`functions/index.js`), which holds the key as a Firebase secret, validates the prompt (max 500 characters), fences it off from the instructions, and returns at most five cleaned-up titles. `maxInstances` caps how far traffic can scale.
+Only the TMDb key is in the browser bundle (TMDb keys are meant for that). The Gemini key and the Reddit app credentials live only on the server: `api/*.js` are Vercel functions that call `server/handlers.js`. They accept GET requests only, validate input (requests up to 500 characters, an allowlist of subreddits), fence user text off from the AI instructions, treat AI output as untrusted, and cache answers for 10 minutes.
 
 ## Run the web app
 
@@ -48,55 +53,45 @@ Prerequisites: Node.js 20.19 or later and npm.
 git clone https://github.com/Krish-39/AI_SE04_NextFilm.git
 cd AI_SE04_NextFilm
 npm ci
-echo "VITE_TMDB_API_KEY=your_tmdb_key" > .env
+cp .env.example .env   # then fill in the keys
 npm run dev
 ```
 
-Open <http://localhost:5173>. Browsing and direct search work with just the TMDb key; AI search needs the Cloud Function deployed.
+Open <http://localhost:5173>. The dev server also serves `/api/*` with the same code as production, so Reddit picks and AI work locally when the keys are in `.env`. Only `VITE_TMDB_API_KEY` is required; without the others, search still works from TMDb alone.
 
-### Deploy the Cloud Functions
+### Deploy (Vercel)
 
-Two functions live in `functions/`: `recommendMovies` (Gemini picks) and `communitySearch` (Reddit search; Reddit blocks requests made straight from browsers, so the site asks this function). Cloud Functions need the Firebase Blaze plan. From the repository root:
+The site and its `/api` functions run on Vercel's free Hobby plan; no card needed. `vercel.json` sets the build, the single-page-app rewrite and the function timeout.
 
 ```bash
-npm install -g firebase-tools
-firebase login
-cd functions && npm ci && cd ..
-firebase functions:secrets:set GEMINI_API_KEY
-firebase functions:secrets:set REDDIT_CLIENT_ID      # see below
-firebase functions:secrets:set REDDIT_CLIENT_SECRET
-firebase deploy --only functions
+npx vercel login
+npx vercel link
+npx vercel env add VITE_TMDB_API_KEY production
+npx vercel env add GEMINI_API_KEY production        # optional
+npx vercel env add REDDIT_CLIENT_ID production      # see below, or "none"
+npx vercel env add REDDIT_CLIENT_SECRET production
+npx vercel deploy --prod
 ```
 
-**Reddit credentials (optional):** since November 2025 Reddit approves new API apps by hand under its [Responsible Builder Policy](https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy). Register a **script** app at <https://www.reddit.com/prefs/apps> (any redirect URL, e.g. `http://localhost:8080`), request access through the form linked from the [Data API Wiki](https://support.reddithelp.com/hc/en-us/articles/14945211791892-Reddit-Data-API-Wiki), and once approved set the id under the app name and the secret. Until then set both to `none`: the function falls back to Reddit's public JSON, which Reddit may rate-limit or block from Google's servers, in which case title pages show a "See all discussions on Reddit" link instead.
+Then add the Vercel domain (e.g. `nextfilm-xxxx.vercel.app`) in Firebase console → Authentication → Settings → **Authorized domains**, so Google sign-in works there.
 
-During `npm run dev`, Reddit requests go through Vite's `/reddit-api` proxy on your own machine instead, so the community features work locally without deploying anything.
+**Reddit credentials:** Reddit's official API needs an app from <https://www.reddit.com/prefs/apps> (type **script**). Apps created after November 2025 need Reddit's approval under its [Responsible Builder Policy](https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy). Without credentials (`none`) the functions fall back to Reddit's public JSON, which Reddit often blocks from cloud servers.
 
 ### Database rules
 
-The watchlist lives in Firestore at `users/{uid}/watchlist`. `firestore.rules` lets each signed-in user read and change only their own list. If saving says *permission denied*, the project's rules are out of date (Firebase "test mode" rules expire after 30 days). Publish these rules either way:
+The watchlist lives in Firestore at `users/{uid}/watchlist`. `firestore.rules` lets each signed-in user read and change only their own list. Publish them once (Firebase's free Spark plan is enough):
 
 - **Console:** Firebase console → Firestore Database → Rules → paste `firestore.rules` → Publish
-- **CLI:** `firebase deploy --only firestore:rules`
+- **CLI:** `npx firebase-tools deploy --only firestore:rules`
 
-The project is set in `.firebaserc` (`nextfilm-mimi`), the same project `src/firebase.js` connects to.
-
-### Deploy the site
-
-```bash
-npm run build
-firebase deploy --only hosting
-```
-
-`firebase.json` serves `dist/` with a single-page-app rewrite, so deep links like `/movie/603` work on refresh.
+The Firebase project is set in `.firebaserc` (`nextfilm-mimi`), the same project `src/firebase.js` connects to. `firebase.json` can also host the static site (`npm run build && npx firebase-tools deploy --only hosting`), but without the `/api` functions, so Reddit picks and AI only work on Vercel.
 
 ### Checks
 
 ```bash
 npm run lint
-npm test            # filters, recommender, Reddit, sorting
+npm test            # filters, search parsing, Reddit picks, recommender, sorting
 npm run build
-cd functions && npm test
 ```
 
 ## Run the recommender models

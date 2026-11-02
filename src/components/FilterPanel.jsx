@@ -30,7 +30,9 @@ function Choice({ pressed, onClick, children, ...rest }) {
   );
 }
 
-export default function FilterPanel({ filters: f, onChange, providers, providersError, region }) {
+// Search reuses this panel without the length and streaming groups, because
+// search results don't carry running times or streaming data.
+export default function FilterPanel({ filters: f, onChange, providers, providersError, region, showRuntime = true, showProviders = true }) {
   const set = (patch) => onChange({ ...f, ...patch });
   const toggle = (list, value) => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
   const genres = f.type === "tv" ? TV_GENRES : MOVIE_GENRES;
@@ -114,7 +116,7 @@ export default function FilterPanel({ filters: f, onChange, providers, providers
         </div>
       </Group>
 
-      {f.type === "movie" && (
+      {showRuntime && f.type === "movie" && (
         <Group title="Length">
           <div className="choice-list choice-list--tight" role="radiogroup" aria-label="Running time">
             {RUNTIMES.map(([value, label]) => (
@@ -143,6 +145,7 @@ export default function FilterPanel({ filters: f, onChange, providers, providers
         </select>
       </Group>
 
+      {showProviders && (
       <Group title="Streaming on">
         <label className="region-picker">
           <span>Country</span>
@@ -174,6 +177,7 @@ export default function FilterPanel({ filters: f, onChange, providers, providers
           </div>
         )}
       </Group>
+      )}
     </div>
   );
 }

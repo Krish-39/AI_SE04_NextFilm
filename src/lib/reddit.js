@@ -1,13 +1,11 @@
 // Reddit community signals.
 //
-// Reddit refuses requests made directly from browsers (CORS), so:
-//  - in development (`npm run dev`) requests go through Vite's /reddit-api proxy
-//  - in production they go through the `communitySearch` Cloud Function
+// Reddit refuses requests made directly from browsers (CORS), so everything
+// goes through the site's own /api functions (server/handlers.js).
 // Everything degrades quietly: if Reddit is down or rate-limits, callers get [].
 
-import { app } from "../firebase";
+import { api } from "./api";
 
-const RECOMMENDATION_SUBS = ["MovieSuggestions", "NetflixBestOf", "televisionsuggestions", "movies"];
 const DISCUSSION_SUBS = { movie: ["movies", "flicks", "TrueFilm"], tv: ["television", "TVDetails", "televisionsuggestions"] };
 
 const memory = new Map();
@@ -43,37 +41,13 @@ export function buzzScore(posts) {
   return { score, discussions: posts.length, engagement };
 }
 
-let callable;
-
-async function viaFunction(subreddits, query, opts) {
-  if (!callable) {
-    const { getFunctions, httpsCallable } = await import("firebase/functions");
-    callable = httpsCallable(getFunctions(app), "communitySearch");
-  }
-  const { data } = await callable({ subreddits, query, ...opts });
-  return Array.isArray(data?.posts) ? data.posts : [];
-}
-
-async function viaDevProxy(subreddits, query, { limit, sort }) {
-  const lists = await Promise.all(
-    subreddits.map((sub) =>
-      fetch(
-        `/reddit-api/r/${sub}/search.json?` +
-          new URLSearchParams({ q: query, restrict_sr: "1", sort, limit: String(limit), raw_json: "1" }),
-      )
-        .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`Reddit ${res.status}`))))
-        .then((json) => normalizePosts(json, sub))
-        .catch(() => []),
-    ),
-  );
-  return lists.flat();
-}
-
 // Search several subreddits at once. Results are cached for the session.
 async function searchSubreddits(subreddits, query, { limit = 10, sort = "relevance" } = {}) {
   const key = JSON.stringify([subreddits, query, limit, sort]);
   if (memory.has(key)) return memory.get(key);
-  const pending = (import.meta.env.DEV ? viaDevProxy : viaFunction)(subreddits, query, { limit, sort }).catch(() => {
+  const pending = api("community", { subs: subreddits.join(","), q: query, sort, limit: String(limit) })
+    .then((d) => (Array.isArray(d?.posts) ? d.posts : []))
+    .catch(() => {
     memory.delete(key);
     return [];
   });
@@ -88,10 +62,10 @@ export async function titleDiscussions(title, kind = "movie") {
   return { posts, ...buzzScore(posts) };
 }
 
-// Post titles from recommendation subreddits, for the AI to mine for picks.
-export async function communityThreads(prompt) {
-  const posts = rankPosts([await searchSubreddits(RECOMMENDATION_SUBS, prompt)]);
-  return posts.filter((p) => p.score + p.comments >= 5);
+// Titles real people recommend in reply to threads like this request,
+// counted across the most upvoted comments (server/picks.js).
+export async function communityPicks(prompt, kind = "movie") {
+  return api("reddit-picks", { q: prompt, kind: kind === "tv" ? "tv" : "movie" }, { timeout: 20000 });
 }
 
 export function redditSearchUrl(title) {

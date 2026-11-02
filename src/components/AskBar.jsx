@@ -18,7 +18,7 @@ export default function AskBar() {
   const go = (text) => {
     const q = text.trim();
     if (!q) return;
-    navigate(`/search?q=${encodeURIComponent(q)}&ai=1`);
+    navigate(`/search?q=${encodeURIComponent(q)}&mode=describe`);
   };
 
   return (
