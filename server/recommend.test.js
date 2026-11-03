@@ -81,3 +81,7 @@ test("buildPrompt adds filter rules and a NONE escape for non-film requests", ()
   assert.match(prompt, /reply with exactly NONE/);
   assert.equal(constraintLines({}).length, 0);
 });
+
+test("parseTitles strips markdown emphasis from AI replies", () => {
+  assert.deepEqual(parseTitles("*Interstellar*, **Moon**, _Gravity_"), ["Interstellar", "Moon", "Gravity"]);
+});

@@ -115,7 +115,7 @@ export function parseTitles(text) {
   for (const raw of text.split(/[,\n]/)) {
     const title = raw
       .replace(/^[\s\-*•\d.)]+/, "")
-      .replace(/["“”]/g, "")
+      .replace(/["“”*_`]/g, "")
       .trim();
     if (!title || title.length > MAX_TITLE_LENGTH) continue;
     const key = title.toLowerCase();
