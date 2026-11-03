@@ -1,17 +1,8 @@
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { api } from "../lib/api";
 
-import { app } from "../firebase";
-
-// The Gemini key lives only in the `recommendMovies` Cloud Function
-// (functions/index.js). The browser never sees it.
-const recommendMovies = httpsCallable(getFunctions(app), "recommendMovies");
-
-export async function getMovieRecommendations(userPrompt) {
-  try {
-    const result = await recommendMovies({ prompt: userPrompt });
-    return Array.isArray(result.data?.titles) ? result.data.titles : [];
-  } catch (error) {
-    console.error("Recommendation error:", error);
-    return [];
-  }
+// The Gemini key lives only on the server (server/ai.js via /api/recommend).
+// `constraints` (type, from, to, lang, rating, genres) are the search filters.
+export async function getRecommendations(prompt, constraints = {}) {
+  const data = await api("recommend", { q: prompt, ...constraints }, { timeout: 20000 });
+  return Array.isArray(data?.titles) ? data.titles.filter((t) => typeof t === "string") : [];
 }

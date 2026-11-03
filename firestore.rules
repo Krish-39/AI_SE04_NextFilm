@@ -1,0 +1,23 @@
+rules_version = '2';
+
+// Each signed-in user can read and change only their own watchlist.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/watchlist/{itemId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().size() <= 20
+        && request.resource.data.id is int
+        && request.resource.data.media_type in ['movie', 'tv']
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 300;
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
