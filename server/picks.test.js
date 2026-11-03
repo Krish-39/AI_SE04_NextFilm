@@ -92,3 +92,18 @@ test("generate surfaces Google's error message", async () => {
   const fetchImpl = async () => ({ ok: false, status: 404, json: async () => ({ error: { message: "model retired" } }) });
   await assert.rejects(generate("hi", "k", { fetchImpl }), /Gemini 404: model retired/);
 });
+
+test("generate retries when Gemini is busy", async () => {
+  const { generate } = await import("./ai.js");
+  let n = 0;
+  const fetchImpl = async () => {
+    n += 1;
+    return n < 3
+      ? { ok: false, status: 503, json: async () => ({ error: { message: "high demand" } }) }
+      : { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: "Moon" }] } }] }) };
+  };
+  assert.equal(await generate("hi", "k", { fetchImpl, delayMs: 1 }), "Moon");
+  assert.equal(n, 3);
+  n = -10;
+  await assert.rejects(generate("hi", "k", { fetchImpl, delayMs: 1 }), /Gemini 503/);
+});

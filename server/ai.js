@@ -8,16 +8,26 @@ import { buildPrompt, parseTitles } from "./recommend.js";
 
 export const DEFAULT_MODEL = "gemini-3.8-flash";
 
-export async function generate(text, apiKey, { maxOutputTokens = 1024, model, fetchImpl = fetch } = {}) {
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Google answers 503 ("high demand") or 429 now and then; those usually clear
+// within seconds, so retry twice with a short pause before giving up.
+export async function generate(text, apiKey, { maxOutputTokens = 1024, model, fetchImpl = fetch, retries = 2, delayMs = 1500 } = {}) {
   const name = model || process.env.GEMINI_MODEL || DEFAULT_MODEL;
-  const res = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(name)}:generateContent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text }] }], generationConfig: { maxOutputTokens } }),
-  });
-  const json = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(`Gemini ${res.status}: ${json?.error?.message || "request failed"}`);
-  return (json?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
+  for (let attempt = 0; ; attempt += 1) {
+    const res = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(name)}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text }] }], generationConfig: { maxOutputTokens } }),
+    });
+    const json = await res.json().catch(() => null);
+    if (res.ok) return (json?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
+    if ((res.status === 503 || res.status === 429) && attempt < retries) {
+      await sleep(delayMs * (attempt + 1));
+      continue;
+    }
+    throw new Error(`Gemini ${res.status}: ${json?.error?.message || "request failed"}`);
+  }
 }
 
 export async function recommend(prompt, apiKey, constraints = {}, opts = {}) {
