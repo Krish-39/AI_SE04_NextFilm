@@ -6,33 +6,47 @@
 // Google retires model names for new accounts from time to time.
 import { buildPrompt, parseTitles } from "./recommend.js";
 
-// Tried in order. When a model is busy (503/429) or retired for new accounts
-// (404), the next one is used. GEMINI_MODEL (if set) is tried first.
-export const MODELS = ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest", "gemini-flash-lite-latest"];
+// Tried in order, fastest first. When a model is busy (503/429), retired for
+// new accounts (404) or too slow, the next one is used. GEMINI_MODEL (if set)
+// is tried first.
+export const MODELS = ["gemini-flash-lite-latest", "gemini-flash-latest", "gemini-3.8-flash", "gemini-3.5-flash"];
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-const SKIP = new Set([404, 429, 503]);
+const SKIP = new Set([404, 429, 500, 503]);
 
-export async function generate(text, apiKey, { maxOutputTokens = 1024, model, fetchImpl = fetch, delayMs = 800 } = {}) {
+// `timeoutMs` caps each model attempt; `deadlineMs` caps the whole call, so a
+// slow Gemini can never push a request past Vercel's function time limit.
+export async function generate(text, apiKey, { maxOutputTokens = 1024, model, fetchImpl = fetch, timeoutMs = 8000, deadlineMs = 15000 } = {}) {
   const order = [...new Set([model, process.env.GEMINI_MODEL, ...MODELS].filter(Boolean))];
-  let last;
-  for (const [i, name] of order.entries()) {
-    const res = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(name)}:generateContent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text }] }], generationConfig: { maxOutputTokens } }),
-    });
-    const json = await res.json().catch(() => null);
-    if (res.ok) return (json?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
-    last = new Error(`Gemini ${res.status} (${name}): ${json?.error?.message || "request failed"}`);
-    if (!SKIP.has(res.status)) throw last; // a bad key or bad request won't get better
-    if (i < order.length - 1 && res.status !== 404) await sleep(delayMs);
+  const end = Date.now() + deadlineMs;
+  let last = new Error("Gemini: no model answered in time");
+  for (const name of order) {
+    const left = end - Date.now();
+    if (left < 1000) break;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), Math.min(timeoutMs, left));
+    try {
+      const res = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(name)}:generateContent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text }] }], generationConfig: { maxOutputTokens } }),
+        signal: ctrl.signal,
+      });
+      const json = await res.json().catch(() => null);
+      if (res.ok) return (json?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
+      last = new Error(`Gemini ${res.status} (${name}): ${json?.error?.message || "request failed"}`);
+      if (!SKIP.has(res.status)) throw last; // a bad key or bad request won't get better
+    } catch (error) {
+      if (error === last) throw error;
+      last = error.name === "AbortError" ? new Error(`Gemini timeout (${name})`) : error;
+    } finally {
+      clearTimeout(timer);
+    }
   }
   throw last;
 }
 
 export async function recommend(prompt, apiKey, constraints = {}, opts = {}) {
-  return parseTitles(await generate(buildPrompt(prompt, constraints), apiKey, { maxOutputTokens: 1024, ...opts }));
+  return parseTitles(await generate(buildPrompt(prompt, constraints), apiKey, { maxOutputTokens: 1024, deadlineMs: 15000, ...opts }));
 }
 
 export function buildExtractPrompt(comments) {
@@ -67,5 +81,6 @@ export function parseExtraction(text, count) {
 }
 
 export async function extractTitlesWithAi(comments, apiKey, opts = {}) {
-  return parseExtraction(await generate(buildExtractPrompt(comments), apiKey, { maxOutputTokens: 4096, ...opts }), comments.length);
+  // Reddit picks fall back to the rule-based reader if this is slow.
+  return parseExtraction(await generate(buildExtractPrompt(comments), apiKey, { maxOutputTokens: 4096, timeoutMs: 9000, deadlineMs: 10000, ...opts }), comments.length);
 }

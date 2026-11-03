@@ -94,7 +94,7 @@ test("generate stops on errors that won't improve", async () => {
     n += 1;
     return { ok: false, status: 401, json: async () => ({ error: { message: "API key not valid" } }) };
   };
-  await assert.rejects(generate("hi", "k", { fetchImpl }), /Gemini 401 \(gemini-3\.8-flash\): API key not valid/);
+  await assert.rejects(generate("hi", "k", { fetchImpl }), /Gemini 401 \(gemini-flash-lite-latest\): API key not valid/);
   assert.equal(n, 1);
 });
 
@@ -104,16 +104,25 @@ test("generate moves to the next model when one is busy or retired", async () =>
   const fetchImpl = async (url) => {
     const name = url.match(/models\/([^:]+):/)[1];
     tried.push(name);
-    if (name === "gemini-3.8-flash") return { ok: false, status: 503, json: async () => ({ error: { message: "high demand" } }) };
-    if (name === "gemini-3.5-flash") return { ok: false, status: 404, json: async () => ({ error: { message: "retired" } }) };
+    if (name === "gemini-flash-lite-latest") return { ok: false, status: 503, json: async () => ({ error: { message: "high demand" } }) };
+    if (name === "gemini-flash-latest") return { ok: false, status: 404, json: async () => ({ error: { message: "retired" } }) };
     return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: "Moon" }] } }] }) };
   };
-  assert.equal(await generate("hi", "k", { fetchImpl, delayMs: 1 }), "Moon");
-  assert.deepEqual(tried, ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]);
+  assert.equal(await generate("hi", "k", { fetchImpl }), "Moon");
+  assert.deepEqual(tried, ["gemini-flash-lite-latest", "gemini-flash-latest", "gemini-3.8-flash"]);
 });
 
 test("generate reports the last error when every model is busy", async () => {
   const { generate } = await import("./ai.js");
   const fetchImpl = async () => ({ ok: false, status: 503, json: async () => ({ error: { message: "high demand" } }) });
-  await assert.rejects(generate("hi", "k", { fetchImpl, delayMs: 1 }), /Gemini 503 \(gemini-flash-lite-latest\)/);
+  await assert.rejects(generate("hi", "k", { fetchImpl }), /Gemini 503 \(gemini-3\.5-flash\)/);
+});
+
+test("generate gives up on slow models within its deadline", async () => {
+  const { generate } = await import("./ai.js");
+  const hang = (url, init) =>
+    new Promise((_, reject) => init.signal.addEventListener("abort", () => reject(Object.assign(new Error("aborted"), { name: "AbortError" }))));
+  const started = Date.now();
+  await assert.rejects(generate("hi", "k", { fetchImpl: hang, timeoutMs: 30, deadlineMs: 1200 }), /Gemini timeout/);
+  assert.ok(Date.now() - started < 1200);
 });
