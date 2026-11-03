@@ -6,15 +6,17 @@
 // Google retires model names for new accounts from time to time.
 import { buildPrompt, parseTitles } from "./recommend.js";
 
-export const DEFAULT_MODEL = "gemini-3.8-flash";
+// Tried in order. When a model is busy (503/429) or retired for new accounts
+// (404), the next one is used. GEMINI_MODEL (if set) is tried first.
+export const MODELS = ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest", "gemini-flash-lite-latest"];
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const SKIP = new Set([404, 429, 503]);
 
-// Google answers 503 ("high demand") or 429 now and then; those usually clear
-// within seconds, so retry twice with a short pause before giving up.
-export async function generate(text, apiKey, { maxOutputTokens = 1024, model, fetchImpl = fetch, retries = 2, delayMs = 1500 } = {}) {
-  const name = model || process.env.GEMINI_MODEL || DEFAULT_MODEL;
-  for (let attempt = 0; ; attempt += 1) {
+export async function generate(text, apiKey, { maxOutputTokens = 1024, model, fetchImpl = fetch, delayMs = 800 } = {}) {
+  const order = [...new Set([model, process.env.GEMINI_MODEL, ...MODELS].filter(Boolean))];
+  let last;
+  for (const [i, name] of order.entries()) {
     const res = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(name)}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
@@ -22,12 +24,11 @@ export async function generate(text, apiKey, { maxOutputTokens = 1024, model, fe
     });
     const json = await res.json().catch(() => null);
     if (res.ok) return (json?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
-    if ((res.status === 503 || res.status === 429) && attempt < retries) {
-      await sleep(delayMs * (attempt + 1));
-      continue;
-    }
-    throw new Error(`Gemini ${res.status}: ${json?.error?.message || "request failed"}`);
+    last = new Error(`Gemini ${res.status} (${name}): ${json?.error?.message || "request failed"}`);
+    if (!SKIP.has(res.status)) throw last; // a bad key or bad request won't get better
+    if (i < order.length - 1 && res.status !== 404) await sleep(delayMs);
   }
+  throw last;
 }
 
 export async function recommend(prompt, apiKey, constraints = {}, opts = {}) {

@@ -87,23 +87,33 @@ test("generate sends the key in x-goog-api-key and joins the reply text", async 
   assert.deepEqual(await recommend("sad space", "k", {}, { fetchImpl }), ["Moon", "Solaris"]);
 });
 
-test("generate surfaces Google's error message", async () => {
-  const { generate } = await import("./ai.js");
-  const fetchImpl = async () => ({ ok: false, status: 404, json: async () => ({ error: { message: "model retired" } }) });
-  await assert.rejects(generate("hi", "k", { fetchImpl }), /Gemini 404: model retired/);
-});
-
-test("generate retries when Gemini is busy", async () => {
+test("generate stops on errors that won't improve", async () => {
   const { generate } = await import("./ai.js");
   let n = 0;
   const fetchImpl = async () => {
     n += 1;
-    return n < 3
-      ? { ok: false, status: 503, json: async () => ({ error: { message: "high demand" } }) }
-      : { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: "Moon" }] } }] }) };
+    return { ok: false, status: 401, json: async () => ({ error: { message: "API key not valid" } }) };
+  };
+  await assert.rejects(generate("hi", "k", { fetchImpl }), /Gemini 401 \(gemini-3\.8-flash\): API key not valid/);
+  assert.equal(n, 1);
+});
+
+test("generate moves to the next model when one is busy or retired", async () => {
+  const { generate } = await import("./ai.js");
+  const tried = [];
+  const fetchImpl = async (url) => {
+    const name = url.match(/models\/([^:]+):/)[1];
+    tried.push(name);
+    if (name === "gemini-3.8-flash") return { ok: false, status: 503, json: async () => ({ error: { message: "high demand" } }) };
+    if (name === "gemini-3.5-flash") return { ok: false, status: 404, json: async () => ({ error: { message: "retired" } }) };
+    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: "Moon" }] } }] }) };
   };
   assert.equal(await generate("hi", "k", { fetchImpl, delayMs: 1 }), "Moon");
-  assert.equal(n, 3);
-  n = -10;
-  await assert.rejects(generate("hi", "k", { fetchImpl, delayMs: 1 }), /Gemini 503/);
+  assert.deepEqual(tried, ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]);
+});
+
+test("generate reports the last error when every model is busy", async () => {
+  const { generate } = await import("./ai.js");
+  const fetchImpl = async () => ({ ok: false, status: 503, json: async () => ({ error: { message: "high demand" } }) });
+  await assert.rejects(generate("hi", "k", { fetchImpl, delayMs: 1 }), /Gemini 503 \(gemini-flash-lite-latest\)/);
 });
