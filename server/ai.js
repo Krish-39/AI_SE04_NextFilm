@@ -1,17 +1,27 @@
 // Gemini calls, used only when GEMINI_API_KEY is set on the server.
+//
+// Plain HTTPS instead of Google's SDK: the SDK rejects the newer "AQ." keys
+// that AI Studio and Google Cloud now issue, while the API itself accepts them
+// in the x-goog-api-key header. GEMINI_MODEL can override the model name, since
+// Google retires model names for new accounts from time to time.
 import { buildPrompt, parseTitles } from "./recommend.js";
 
-const MODEL = "gemini-2.5-flash";
+export const DEFAULT_MODEL = "gemini-3.8-flash";
 
-async function client(apiKey) {
-  const { GoogleGenAI } = await import("@google/genai");
-  return new GoogleGenAI({ apiKey });
+export async function generate(text, apiKey, { maxOutputTokens = 1024, model, fetchImpl = fetch } = {}) {
+  const name = model || process.env.GEMINI_MODEL || DEFAULT_MODEL;
+  const res = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(name)}:generateContent`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text }] }], generationConfig: { maxOutputTokens } }),
+  });
+  const json = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(`Gemini ${res.status}: ${json?.error?.message || "request failed"}`);
+  return (json?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
 }
 
-export async function recommend(prompt, apiKey, constraints = {}) {
-  const ai = await client(apiKey);
-  const r = await ai.models.generateContent({ model: MODEL, contents: buildPrompt(prompt, constraints), config: { maxOutputTokens: 200 } });
-  return parseTitles(r.text);
+export async function recommend(prompt, apiKey, constraints = {}, opts = {}) {
+  return parseTitles(await generate(buildPrompt(prompt, constraints), apiKey, { maxOutputTokens: 1024, ...opts }));
 }
 
 export function buildExtractPrompt(comments) {
@@ -45,12 +55,6 @@ export function parseExtraction(text, count) {
   return out;
 }
 
-export async function extractTitlesWithAi(comments, apiKey) {
-  const ai = await client(apiKey);
-  const r = await ai.models.generateContent({
-    model: MODEL,
-    contents: buildExtractPrompt(comments),
-    config: { maxOutputTokens: 1500 },
-  });
-  return parseExtraction(r.text, comments.length);
+export async function extractTitlesWithAi(comments, apiKey, opts = {}) {
+  return parseExtraction(await generate(buildExtractPrompt(comments), apiKey, { maxOutputTokens: 4096, ...opts }), comments.length);
 }

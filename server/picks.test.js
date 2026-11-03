@@ -72,3 +72,23 @@ test("parseExtraction keeps well-formed lines only", () => {
   const out = parseExtraction("1|Moon|2009\n[2] | Solaris |\n9|Out of range|\nnonsense\n2|**Gravity**|2013", 2);
   assert.deepEqual(out, [[{ title: "Moon", year: 2009 }], [{ title: "Solaris", year: null }, { title: "Gravity", year: 2013 }]]);
 });
+
+test("generate sends the key in x-goog-api-key and joins the reply text", async () => {
+  const { generate, recommend } = await import("./ai.js");
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    calls.push({ url, init });
+    return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: "Moon, " }, { text: "Solaris" }] } }] }) };
+  };
+  assert.equal(await generate("hi", "AQ.secret", { fetchImpl, model: "gemini-test" }), "Moon, Solaris");
+  assert.match(calls[0].url, /models\/gemini-test:generateContent$/);
+  assert.equal(calls[0].init.headers["x-goog-api-key"], "AQ.secret");
+  assert.ok(!calls[0].url.includes("AQ.secret"));
+  assert.deepEqual(await recommend("sad space", "k", {}, { fetchImpl }), ["Moon", "Solaris"]);
+});
+
+test("generate surfaces Google's error message", async () => {
+  const { generate } = await import("./ai.js");
+  const fetchImpl = async () => ({ ok: false, status: 404, json: async () => ({ error: { message: "model retired" } }) });
+  await assert.rejects(generate("hi", "k", { fetchImpl }), /Gemini 404: model retired/);
+});
